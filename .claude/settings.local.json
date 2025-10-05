@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter build:*)",
+      "Bash(move order_detail_screen.dart order_detail_screen_backup.dart)",
+      "Bash(move order_detail_screen_fixed.dart order_detail_screen.dart)",
+      "Bash(move lib/screens/orders/order_detail_screen.dart lib/screens/orders/order_detail_screen_backup.dart)",
+      "Bash(find:*)",
+      "Read(//c/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
