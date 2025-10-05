@@ -1,10 +1,12 @@
 class ApiConstants {  
-  static const String identityServiceBaseUrl = 'http://10.0.2.2:8080';
-  static const String companyServiceBaseUrl = 'http://10.0.2.2:8082';
-  static const String inventoryServiceBaseUrl = 'http://10.0.2.2:8084';
-  static const String orderServiceBaseUrl = 'http://10.0.2.2:8090';
-  static const String productionServiceBaseUrl = 'http://10.0.2.2:8084';
-  static const String payrollServiceBaseUrl = 'http://10.0.2.2:8096';
+  static const String baseApiUrl = 'http://192.168.100.106';
+  
+  static const String identityServiceBaseUrl = '${baseApiUrl}:8080';
+  static const String companyServiceBaseUrl = '${baseApiUrl}:8082';
+  static const String inventoryServiceBaseUrl = '${baseApiUrl}:8084';
+  static const String orderServiceBaseUrl = '${baseApiUrl}:8090';
+  static const String productionServiceBaseUrl = '${baseApiUrl}:8084';
+  static const String payrollServiceBaseUrl = '${baseApiUrl}:8096';
 
   // Authentication endpoints
   static const String loginEndpoint = '/api/auth/login';
