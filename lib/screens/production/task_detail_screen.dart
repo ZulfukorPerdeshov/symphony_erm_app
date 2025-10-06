@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/production.dart';
+import '../../models/company.dart';
 import '../../services/inventory_service.dart';
 import '../../services/company_service.dart';
+import '../../services/auth_service.dart';
 import '../../utils/constants.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -19,6 +24,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
   late TabController _tabController;
   MyProductionTaskDto? _task;
   bool _isLoading = false;
+  final TextEditingController _commentController = TextEditingController();
+  final FocusNode _commentFocusNode = FocusNode();
+  bool _isInternal = false;
+  Map<String, String> _userFullNames = {}; // Cache user full names by userId
 
   @override
   void initState() {
@@ -31,6 +40,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _commentController.dispose();
+    _commentFocusNode.dispose();
     super.dispose();
   }
 
@@ -40,6 +51,26 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
     try {
       final companyId = CompanyService.getCurrentCompanyIdOrThrow();
       final taskDetails = await InventoryService.getProductionTask(companyId, _task!.id);
+
+      // Extract unique user IDs from comments
+      final userIds = taskDetails.comments
+          .map((comment) => comment.userId)
+          .where((userId) => userId.isNotEmpty && !_userFullNames.containsKey(userId))
+          .toSet()
+          .toList();
+
+      // Fetch user details if there are any new user IDs
+      if (userIds.isNotEmpty) {
+        try {
+          final users = await AuthService.getUsersByIds(userIds);
+          for (final user in users) {
+            _userFullNames[user.id] = user.fullName;
+          }
+        } catch (e) {
+          // If user fetching fails, continue with task display
+          // Users will see userId instead of full name
+        }
+      }
 
       setState(() {
         _task = taskDetails;
@@ -285,6 +316,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
 
   Widget _buildAssignmentInfo() {
     final l10n = AppLocalizations.of(context)!;
+    final currentUserId = AuthService.currentUser?.id;
+    final isAssignedToCurrentUser = _task!.assignedToUserId == currentUserId;
+    final isAssigned = _task!.assignedToUserId != null;
 
     return Card(
       elevation: 0,
@@ -319,6 +353,78 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
                   color: Color(AppColors.textHint),
                 ),
               ),
+            const SizedBox(height: 16),
+            // Assignment Actions
+            Row(
+              children: [
+                if (!isAssigned) // Task not assigned
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _assignToSelf,
+                      icon: const Icon(Icons.person_add, size: 18),
+                      label: Text(l10n.assignToMe),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(AppColors.primaryIndigo),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (isAssignedToCurrentUser) // Assigned to current user
+                  ...[
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _isLoading ? null : _unassignTask,
+                        icon: const Icon(Icons.person_remove, size: 18),
+                        label: Text(l10n.returnTask),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(AppColors.warning),
+                          side: const BorderSide(color: Color(AppColors.warning)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _showReassignDialog,
+                        icon: const Icon(Icons.swap_horiz, size: 18),
+                        label: Text(l10n.reassign),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(AppColors.info),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                if (isAssigned && !isAssignedToCurrentUser) // Assigned to someone else
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _showReassignDialog,
+                      icon: const Icon(Icons.swap_horiz, size: 18),
+                      label: Text(l10n.reassign),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(AppColors.info),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
@@ -720,6 +826,229 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
     }
   }
 
+  Future<void> _assignToSelf() async {
+    try {
+      setState(() => _isLoading = true);
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      final updatedTask = await InventoryService.assignTaskToSelf(companyId, _task!.id);
+
+      setState(() {
+        _task = updatedTask;
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.taskAssignedToYou)),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorAssigningTask}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _unassignTask() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.returnTask),
+        content: Text(AppLocalizations.of(context)!.areYouSureReturnTask),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(AppLocalizations.of(context)!.returnTask),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      final updatedTask = await InventoryService.unassignTask(companyId, _task!.id);
+
+      setState(() {
+        _task = updatedTask;
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.taskReturned)),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorReturningTask}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showReassignDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    // Show loading dialog while fetching users
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    List<CompanyUserDto> companyUsers = [];
+    try {
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      companyUsers = await CompanyService.getCompanyUsers(companyId);
+
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.errorLoadingData}: $e')),
+        );
+      }
+      return;
+    }
+
+    if (companyUsers.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.noUsersFound)),
+        );
+      }
+      return;
+    }
+
+    // Show dropdown dialog
+    CompanyUserDto? selectedUser;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.reassignTask),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.selectUserToReassign),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<CompanyUserDto>(
+                decoration: InputDecoration(
+                  labelText: l10n.selectUser,
+                  border: const OutlineInputBorder(),
+                ),
+                isExpanded: true,
+                value: selectedUser,
+                items: companyUsers.map((user) {
+                  return DropdownMenuItem<CompanyUserDto>(
+                    value: user,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundColor: const Color(AppColors.primaryIndigo).withValues(alpha: 0.1),
+                          child: Text(
+                            user.firstName[0].toUpperCase(),
+                            style: const TextStyle(
+                              color: Color(AppColors.primaryIndigo),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            user.email != null ? '${user.fullName} (${user.email})' : user.fullName,
+                            style: const TextStyle(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setDialogState(() {
+                    selectedUser = value;
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedUser == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.pleaseSelectUser)),
+                  );
+                  return;
+                }
+                Navigator.of(context).pop(true);
+              },
+              child: Text(l10n.reassign),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != true || selectedUser == null) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      final request = ReassignTaskRequest(
+        userId: selectedUser!.userId,
+      );
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      final updatedTask = await InventoryService.reassignTask(companyId, _task!.id, request);
+
+      setState(() {
+        _task = updatedTask;
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.taskReassigned)),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorReassigningTask}: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _showUpdateProgressDialog() async {
     final l10n = AppLocalizations.of(context)!;
     final progressController = TextEditingController(text: _task!.progressPercentage.toString());
@@ -817,140 +1146,370 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
 
   Widget _buildCommentsTab() {
     final l10n = AppLocalizations.of(context)!;
+    final currentUserId = AuthService.currentUser?.id;
 
-    if (_task!.comments.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.comment_outlined,
-              size: 64,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noCommentsYet,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
+    return Column(
+      children: [
+        Expanded(
+          child: _task!.comments.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.comment_outlined,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.noCommentsYet,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.startConversation,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  reverse: true,
+                  itemCount: _task!.comments.length,
+                  itemBuilder: (context, index) {
+                    final comment = _task!.comments[_task!.comments.length - 1 - index];
+                    final isCurrentUser = comment.userId == currentUserId;
+                    return _buildChatBubble(comment, isCurrentUser);
+                  },
+                ),
         ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _task!.comments.length,
-      itemBuilder: (context, index) {
-        final comment = _task!.comments[index];
-        return _buildCommentCard(comment);
-      },
+        // Chat Input
+        _buildChatInput(),
+      ],
     );
   }
 
   Widget _buildAttachmentsTab() {
     final l10n = AppLocalizations.of(context)!;
 
-    if (_task!.attachments.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.attach_file_outlined,
-              size: 64,
-              color: Colors.grey,
+    return Column(
+      children: [
+        Expanded(
+          child: _task!.attachments.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.attach_file_outlined,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.noAttachments,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _task!.attachments.length,
+                  itemBuilder: (context, index) {
+                    final attachment = _task!.attachments[index];
+                    return _buildAttachmentCard(attachment);
+                  },
+                ),
+        ),
+        // Add Attachment Button
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: ElevatedButton.icon(
+              onPressed: _isLoading ? null : _showAddAttachmentDialog,
+              icon: const Icon(Icons.attach_file),
+              label: Text(l10n.addAttachment),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(AppColors.primaryIndigo),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noAttachments,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChatBubble(ProductionTaskCommentDto comment, bool isCurrentUser) {
+    // Get user full name from cache, fallback to comment.userName, then unknown
+    final userName = _userFullNames[comment.userId] ??
+                     comment.userName ??
+                     AppLocalizations.of(context)!.unknown;
+
+    return Align(
+      alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
+        child: Column(
+          crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            // User name and internal badge
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  if (comment.isInternal) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(AppColors.info).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.internal,
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: Color(AppColors.info),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            // Message bubble
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isCurrentUser
+                    ? const Color(AppColors.primaryIndigo)
+                    : Colors.grey[200],
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(isCurrentUser ? 16 : 4),
+                  bottomRight: Radius.circular(isCurrentUser ? 4 : 16),
+                ),
+              ),
+              child: Text(
+                comment.comment,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isCurrentUser ? Colors.white : const Color(AppColors.textPrimary),
+                  height: 1.4,
+                ),
+              ),
+            ),
+            // Timestamp
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Text(
+                _formatDate(comment.createdAt),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[500],
+                ),
               ),
             ),
           ],
         ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _task!.attachments.length,
-      itemBuilder: (context, index) {
-        final attachment = _task!.attachments[index];
-        return _buildAttachmentCard(attachment);
-      },
+      ),
     );
   }
 
-  Widget _buildCommentCard(ProductionTaskCommentDto comment) {
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey[300]!),
+  Widget _buildChatInput() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      child: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    comment.userName ?? AppLocalizations.of(context)!.unknown,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(AppColors.textPrimary),
-                    ),
-                  ),
+            // Internal toggle
+            if (_isInternal)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: const Color(AppColors.info).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                if (comment.isInternal)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(AppColors.info).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.internal,
+                child: Row(
+                  children: [
+                    const Icon(Icons.lock, size: 16, color: Color(AppColors.info)),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.internalComment,
                       style: const TextStyle(
-                        fontSize: 10,
+                        fontSize: 12,
                         color: Color(AppColors.info),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isInternal = false;
+                        });
+                      },
+                      child: const Icon(Icons.close, size: 16, color: Color(AppColors.info)),
+                    ),
+                  ],
+                ),
+              ),
+            // Input row
+            Row(
+              children: [
+                // Internal button
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isInternal = !_isInternal;
+                    });
+                  },
+                  icon: Icon(
+                    _isInternal ? Icons.lock : Icons.lock_open,
+                    color: _isInternal
+                        ? const Color(AppColors.info)
+                        : Colors.grey[600],
                   ),
+                  tooltip: l10n.internalComment,
+                ),
+                // Text input
+                Expanded(
+                  child: TextField(
+                    controller: _commentController,
+                    focusNode: _commentFocusNode,
+                    decoration: InputDecoration(
+                      hintText: l10n.typeMessage,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: const BorderSide(color: Color(AppColors.primaryIndigo)),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                    maxLines: null,
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Send button
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(AppColors.primaryIndigo),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: _isLoading ? null : _sendComment,
+                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                    tooltip: l10n.sendMessage,
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              comment.comment,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(AppColors.textSecondary),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _formatDate(comment.createdAt),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(AppColors.textHint),
-              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _sendComment() async {
+    final commentText = _commentController.text.trim();
+    if (commentText.isEmpty) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      final request = CreateProductionTaskCommentRequest(
+        comment: commentText,
+        isInternal: _isInternal,
+      );
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      await InventoryService.addProductionTaskComment(companyId, _task!.id, request);
+
+      // Clear input
+      _commentController.clear();
+      setState(() {
+        _isInternal = false;
+      });
+
+      // Reload task details to get updated comments
+      await _loadTaskDetails();
+
+      // Unfocus keyboard
+      _commentFocusNode.unfocus();
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorAddingComment}: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildAttachmentCard(ProductionTaskAttachmentDto attachment) {
@@ -1022,13 +1581,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
               ),
             ),
             IconButton(
-              onPressed: () {
-                // TODO: Implement file download/view
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.of(context)!.fileDownloadNotImplemented)),
-                );
-              },
+              onPressed: () => _downloadAttachment(attachment),
               icon: const Icon(Icons.download),
+              tooltip: AppLocalizations.of(context)!.downloadingFile,
             ),
           ],
         ),
@@ -1164,5 +1719,185 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _showAddAttachmentDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    // Pick file
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+      allowMultiple: false,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final file = result.files.first;
+    if (file.path == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorUploadingFile)),
+        );
+      }
+      return;
+    }
+
+    // Show description dialog
+    final descriptionController = TextEditingController();
+    final shouldUpload = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.addAttachment),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.insert_drive_file, size: 40),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        file.name,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${(file.size / 1024).toStringAsFixed(2)} KB',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(
+                labelText: l10n.fileDescription,
+                hintText: l10n.enterFileDescription,
+                border: const OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.upload),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldUpload != true) return;
+
+    // Upload file
+    try {
+      setState(() => _isLoading = true);
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      await InventoryService.uploadProductionTaskAttachment(
+        companyId: companyId,
+        taskId: _task!.id,
+        filePath: file.path!,
+        description: descriptionController.text.trim().isEmpty
+            ? null
+            : descriptionController.text.trim(),
+      );
+
+      // Reload task details
+      await _loadTaskDetails();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.fileUploadedSuccessfully)),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.errorUploadingFile}: $e')),
+        );
+      }
+    }
+
+  }
+
+  Future<void> _downloadAttachment(ProductionTaskAttachmentDto attachment) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      // Show downloading message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.downloadingFile),
+            duration: const Duration(seconds: 30),
+          ),
+        );
+      }
+
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+
+      // Download file as bytes
+      final fileBytes = await InventoryService.downloadProductionTaskAttachment(
+        companyId,
+        attachment.id,
+      );
+
+      // Get downloads directory
+      Directory? directory;
+      if (Platform.isAndroid) {
+        directory = await getExternalStorageDirectory();
+      } else if (Platform.isIOS) {
+        directory = await getApplicationDocumentsDirectory();
+      } else {
+        directory = await getDownloadsDirectory();
+      }
+
+      if (directory == null) {
+        throw Exception('Could not access storage directory');
+      }
+
+      // Create file path
+      final filePath = '${directory.path}/${attachment.fileName}';
+      final file = File(filePath);
+
+      // Write bytes to file
+      await file.writeAsBytes(fileBytes);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.fileDownloadedSuccessfully}\n$filePath'),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: l10n.ok,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.errorDownloadingFile}: $e')),
+        );
+      }
+    }
   }
 }

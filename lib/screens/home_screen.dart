@@ -15,6 +15,7 @@ import '../main.dart';
 import 'auth/login_screen.dart';
 import 'orders/orders_screen.dart';
 import 'production/task_detail_screen.dart';
+import 'production/task_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -517,7 +518,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildInProgressTasks(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final filteredTasks = _filteredTasks.take(5).toList(); // Show max 5 tasks
+    final filteredTasks = _filteredTasks.take(10).toList(); // Show max 10 tasks
 
     return Card(
       elevation: 0,
@@ -533,12 +534,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _selectedTabIndex == 0 ? l10n.tasks : _getTabLabel(_selectedTabIndex),
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                if (filteredTasks.length > 5)
+                if (_filteredTasks.isNotEmpty)
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to full tasks list
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const TaskListScreen(),
+                        ),
+                      ).then((_) => _loadMyTasks());
                     },
-                    child: Text(l10n.loadMore),
+                    child: Text(l10n.showAll),
                   ),
               ],
             ),

@@ -756,3 +756,18 @@ class CreateProductionTaskAttachmentRequest {
         'description': description,
       };
 }
+
+class ReassignTaskRequest {
+  final String? userId;
+  final String? roleId;
+
+  ReassignTaskRequest({
+    this.userId,
+    this.roleId,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'userId': userId,
+        'roleId': roleId,
+      };
+}

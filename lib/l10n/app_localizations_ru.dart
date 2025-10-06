@@ -1303,4 +1303,158 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorLoadingRawMaterials => 'Ошибка загрузки сырья';
+
+  @override
+  String get myTasks => 'Мои задачи';
+
+  @override
+  String get searchTasks => 'Поиск задач...';
+
+  @override
+  String get noTasksFound => 'Задачи не найдены';
+
+  @override
+  String get tryAdjustingFilters => 'Попробуйте изменить фильтры';
+
+  @override
+  String get showAll => 'Показать все';
+
+  @override
+  String get assignToMe => 'Назначить мне';
+
+  @override
+  String get returnTask => 'Вернуть задачу';
+
+  @override
+  String get reassign => 'Переназначить';
+
+  @override
+  String get taskAssignedToYou => 'Задача назначена вам';
+
+  @override
+  String get errorAssigningTask => 'Ошибка назначения задачи';
+
+  @override
+  String get areYouSureReturnTask =>
+      'Вы уверены, что хотите вернуть эту задачу?';
+
+  @override
+  String get taskReturned => 'Задача успешно возвращена';
+
+  @override
+  String get errorReturningTask => 'Ошибка возврата задачи';
+
+  @override
+  String get reassignTask => 'Переназначить задачу';
+
+  @override
+  String get enterUserIdToReassign =>
+      'Введите ID пользователя для переназначения';
+
+  @override
+  String get userId => 'ID пользователя';
+
+  @override
+  String get enterUserId => 'Введите ID пользователя';
+
+  @override
+  String get pleaseEnterUserId => 'Пожалуйста, введите ID пользователя';
+
+  @override
+  String get taskReassigned => 'Задача успешно переназначена';
+
+  @override
+  String get errorReassigningTask => 'Ошибка переназначения задачи';
+
+  @override
+  String get addComment => 'Добавить комментарий';
+
+  @override
+  String get comment => 'Комментарий';
+
+  @override
+  String get enterYourComment => 'Введите ваш комментарий';
+
+  @override
+  String get internalComment => 'Внутренний комментарий';
+
+  @override
+  String get internalCommentDescription =>
+      'Виден только внутренним членам команды';
+
+  @override
+  String get pleaseEnterComment => 'Пожалуйста, введите комментарий';
+
+  @override
+  String get commentAdded => 'Комментарий успешно добавлен';
+
+  @override
+  String get errorAddingComment => 'Ошибка добавления комментария';
+
+  @override
+  String get addAttachment => 'Добавить вложение';
+
+  @override
+  String get attachmentFeatureComingSoon => 'Функция вложений скоро появится';
+
+  @override
+  String get typeMessage => 'Введите сообщение...';
+
+  @override
+  String get sendMessage => 'Отправить';
+
+  @override
+  String get startConversation => 'Начните разговор ниже';
+
+  @override
+  String get noUsersFound => 'Пользователи не найдены';
+
+  @override
+  String get selectUserToReassign =>
+      'Выберите пользователя для переназначения задачи';
+
+  @override
+  String get selectUser => 'Выберите пользователя';
+
+  @override
+  String get pleaseSelectUser => 'Пожалуйста, выберите пользователя';
+
+  @override
+  String get selectFile => 'Выбрать файл';
+
+  @override
+  String get fileDescription => 'Описание файла (необязательно)';
+
+  @override
+  String get enterFileDescription => 'Введите описание файла';
+
+  @override
+  String get upload => 'Загрузить';
+
+  @override
+  String get fileSelected => 'Файл выбран';
+
+  @override
+  String get noFileSelected => 'Файл не выбран';
+
+  @override
+  String get uploadingFile => 'Загрузка файла...';
+
+  @override
+  String get fileUploadedSuccessfully => 'Файл успешно загружен';
+
+  @override
+  String get errorUploadingFile => 'Ошибка загрузки файла';
+
+  @override
+  String get downloadingFile => 'Скачивание файла...';
+
+  @override
+  String get fileDownloadedSuccessfully => 'Файл успешно скачан';
+
+  @override
+  String get errorDownloadingFile => 'Ошибка скачивания файла';
+
+  @override
+  String get pleaseSelectFile => 'Пожалуйста, выберите файл для загрузки';
 }

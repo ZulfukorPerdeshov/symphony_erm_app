@@ -237,4 +237,22 @@ class AuthService {
       return false;
     }
   }
+
+  /// Fetch users by their IDs
+  /// Returns a list of basic user information
+  static Future<List<UserBasicDto>> getUsersByIds(List<String> userIds) async {
+    try {
+      if (userIds.isEmpty) return [];
+
+      final response = await ApiService.post<List<dynamic>>(
+        ApiConstants.identityServiceBaseUrl,
+        ApiConstants.usersByIdsEndpoint,
+        data: userIds,
+      );
+
+      return response.map((json) => UserBasicDto.fromJson(json as Map<String, dynamic>)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

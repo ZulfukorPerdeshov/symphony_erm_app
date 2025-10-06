@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import '../models/product.dart';
 import '../models/warehouse.dart';
 import '../models/production.dart';
 import '../utils/constants.dart';
 import 'api_service.dart';
+import 'storage_service.dart';
 
 class InventoryService {
   static Future<List<ProductDto>> getProducts({
@@ -878,13 +880,54 @@ class InventoryService {
     }
   }
 
-  static Future<String> downloadProductionTaskAttachment(String companyId, String attachmentId) async {
-    final response = await ApiService.get<String>(
+  /// Upload file as multipart form data for production task attachment
+  static Future<ProductionTaskAttachmentDto> uploadProductionTaskAttachment({
+    required String companyId,
+    required String taskId,
+    required String filePath,
+    String? description,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath),
+      if (description != null && description.isNotEmpty) 'description': description,
+    });
+
+    final response = await ApiService.postMultipart<Map<String, dynamic>>(
       ApiConstants.productionServiceBaseUrl,
-      ApiConstants.productionTaskAttachmentDownloadEndpoint(companyId, attachmentId),
+      ApiConstants.productionTaskAttachmentsEndpoint(companyId, taskId),
+      formData: formData,
     );
 
-    return response;
+    // Check if response has the wrapped structure
+    if (response.containsKey('data')) {
+      return ProductionTaskAttachmentDto.fromJson(response['data']);
+    } else {
+      // Fallback for direct response
+      return ProductionTaskAttachmentDto.fromJson(response);
+    }
+  }
+
+  /// Download production task attachment file as bytes
+  static Future<List<int>> downloadProductionTaskAttachment(String companyId, String attachmentId) async {
+    final dio = Dio();
+
+    // Get current access token from secure storage
+    final token = await StorageService.getSecure(AppConstants.accessTokenKey);
+    if (token == null) {
+      throw Exception('No access token available');
+    }
+
+    final response = await dio.get(
+      '${ApiConstants.productionServiceBaseUrl}${ApiConstants.productionTaskAttachmentDownloadEndpoint(companyId, attachmentId)}',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        responseType: ResponseType.bytes,
+      ),
+    );
+
+    return response.data as List<int>;
   }
 
   static Future<void> deleteProductionTaskAttachment(String companyId, String attachmentId) async {
@@ -892,5 +935,54 @@ class InventoryService {
       ApiConstants.productionServiceBaseUrl,
       ApiConstants.productionTaskAttachmentByIdEndpoint(companyId, attachmentId),
     );
+  }
+
+  // Production Task Assignment
+  static Future<MyProductionTaskDto> assignTaskToSelf(String companyId, String taskId) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskAssignToSelfEndpoint(companyId, taskId),
+      data: {},
+    );
+
+    // Check if response has the wrapped structure
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
+      // Fallback for direct response
+      return MyProductionTaskDto.fromJson(response);
+    }
+  }
+
+  static Future<MyProductionTaskDto> reassignTask(String companyId, String taskId, ReassignTaskRequest request) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskReassignEndpoint(companyId, taskId),
+      data: request.toJson(),
+    );
+
+    // Check if response has the wrapped structure
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
+      // Fallback for direct response
+      return MyProductionTaskDto.fromJson(response);
+    }
+  }
+
+  static Future<MyProductionTaskDto> unassignTask(String companyId, String taskId) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskUnassignEndpoint(companyId, taskId),
+      data: {},
+    );
+
+    // Check if response has the wrapped structure
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
+      // Fallback for direct response
+      return MyProductionTaskDto.fromJson(response);
+    }
   }
 }

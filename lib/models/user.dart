@@ -146,3 +146,42 @@ class FileUploadResponse {
         fileSize: json['fileSize'],
       );
 }
+
+// Basic user info from Users/by-Ids endpoint
+class UserBasicDto {
+  final String id;
+  final String? phoneNumber;
+  final String firstName;
+  final String lastName;
+  final String? avatar;
+  final String? email;
+
+  UserBasicDto({
+    required this.id,
+    this.phoneNumber,
+    required this.firstName,
+    required this.lastName,
+    this.avatar,
+    this.email,
+  });
+
+  String get fullName => '$firstName $lastName';
+
+  factory UserBasicDto.fromJson(Map<String, dynamic> json) => UserBasicDto(
+        id: json['id'],
+        phoneNumber: json['phoneNumber'],
+        firstName: json['firstName'],
+        lastName: json['lastName'],
+        avatar: json['avatar'],
+        email: json['email'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'phoneNumber': phoneNumber,
+        'firstName': firstName,
+        'lastName': lastName,
+        'avatar': avatar,
+        'email': email,
+      };
+}

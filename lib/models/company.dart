@@ -558,3 +558,86 @@ class GetCompaniesParams {
     return params;
   }
 }
+
+// Company User model from /api/companies/{companyId}/users endpoint
+class CompanyUserDto {
+  final String id;
+  final String companyId;
+  final String userId;
+  final String? email;
+  final String firstName;
+  final String lastName;
+  final String? phoneNumber;
+  final String? branchId;
+  final String? departmentId;
+  final String? identityRoleId;
+  final int role;
+  final int status;
+  final DateTime? invitedAt;
+  final DateTime? joinedAt;
+  final DateTime? lastLoginAt;
+  final String? avatar;
+
+  CompanyUserDto({
+    required this.id,
+    required this.companyId,
+    required this.userId,
+    this.email,
+    required this.firstName,
+    required this.lastName,
+    this.phoneNumber,
+    this.branchId,
+    this.departmentId,
+    this.identityRoleId,
+    required this.role,
+    required this.status,
+    this.invitedAt,
+    this.joinedAt,
+    this.lastLoginAt,
+    this.avatar,
+  });
+
+  String get fullName => '$firstName $lastName';
+
+  factory CompanyUserDto.fromJson(Map<String, dynamic> json) {
+    return CompanyUserDto(
+      id: json['id'],
+      companyId: json['companyId'],
+      userId: json['userId'],
+      email: json['email'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      phoneNumber: json['phoneNumber'],
+      branchId: json['branchId'],
+      departmentId: json['departmentId'],
+      identityRoleId: json['identityRoleId'],
+      role: json['role'] ?? 0,
+      status: json['status'] ?? 1,
+      invitedAt: json['invitedAt'] != null ? DateTime.parse(json['invitedAt']) : null,
+      joinedAt: json['joinedAt'] != null ? DateTime.parse(json['joinedAt']) : null,
+      lastLoginAt: json['lastLoginAt'] != null ? DateTime.parse(json['lastLoginAt']) : null,
+      avatar: json['avatar'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'companyId': companyId,
+      'userId': userId,
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phoneNumber': phoneNumber,
+      'branchId': branchId,
+      'departmentId': departmentId,
+      'identityRoleId': identityRoleId,
+      'role': role,
+      'status': status,
+      'invitedAt': invitedAt?.toIso8601String(),
+      'joinedAt': joinedAt?.toIso8601String(),
+      'lastLoginAt': lastLoginAt?.toIso8601String(),
+      'avatar': avatar,
+    };
+  }
+}

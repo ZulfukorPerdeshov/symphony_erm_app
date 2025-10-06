@@ -2643,6 +2643,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading raw materials'**
   String get errorLoadingRawMaterials;
+
+  /// No description provided for @myTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'My Tasks'**
+  String get myTasks;
+
+  /// No description provided for @searchTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tasks...'**
+  String get searchTasks;
+
+  /// No description provided for @noTasksFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks found'**
+  String get noTasksFound;
+
+  /// No description provided for @tryAdjustingFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your filters'**
+  String get tryAdjustingFilters;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All'**
+  String get showAll;
+
+  /// No description provided for @assignToMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to Me'**
+  String get assignToMe;
+
+  /// No description provided for @returnTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Return Task'**
+  String get returnTask;
+
+  /// No description provided for @reassign.
+  ///
+  /// In en, this message translates to:
+  /// **'Reassign'**
+  String get reassign;
+
+  /// No description provided for @taskAssignedToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Task assigned to you'**
+  String get taskAssignedToYou;
+
+  /// No description provided for @errorAssigningTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Error assigning task'**
+  String get errorAssigningTask;
+
+  /// No description provided for @areYouSureReturnTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to return this task?'**
+  String get areYouSureReturnTask;
+
+  /// No description provided for @taskReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Task returned successfully'**
+  String get taskReturned;
+
+  /// No description provided for @errorReturningTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Error returning task'**
+  String get errorReturningTask;
+
+  /// No description provided for @reassignTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Reassign Task'**
+  String get reassignTask;
+
+  /// No description provided for @enterUserIdToReassign.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter user ID to reassign task'**
+  String get enterUserIdToReassign;
+
+  /// No description provided for @userId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get userId;
+
+  /// No description provided for @enterUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter user ID'**
+  String get enterUserId;
+
+  /// No description provided for @pleaseEnterUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a user ID'**
+  String get pleaseEnterUserId;
+
+  /// No description provided for @taskReassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Task reassigned successfully'**
+  String get taskReassigned;
+
+  /// No description provided for @errorReassigningTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reassigning task'**
+  String get errorReassigningTask;
+
+  /// No description provided for @addComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Comment'**
+  String get addComment;
+
+  /// No description provided for @comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get comment;
+
+  /// No description provided for @enterYourComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your comment'**
+  String get enterYourComment;
+
+  /// No description provided for @internalComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal Comment'**
+  String get internalComment;
+
+  /// No description provided for @internalCommentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Only visible to internal team members'**
+  String get internalCommentDescription;
+
+  /// No description provided for @pleaseEnterComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a comment'**
+  String get pleaseEnterComment;
+
+  /// No description provided for @commentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment added successfully'**
+  String get commentAdded;
+
+  /// No description provided for @errorAddingComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Error adding comment'**
+  String get errorAddingComment;
+
+  /// No description provided for @addAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Attachment'**
+  String get addAttachment;
+
+  /// No description provided for @attachmentFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment feature coming soon'**
+  String get attachmentFeatureComingSoon;
+
+  /// No description provided for @typeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessage;
+
+  /// No description provided for @sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get sendMessage;
+
+  /// No description provided for @startConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a conversation below'**
+  String get startConversation;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUsersFound;
+
+  /// No description provided for @selectUserToReassign.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a user to reassign this task'**
+  String get selectUserToReassign;
+
+  /// No description provided for @selectUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Select User'**
+  String get selectUser;
+
+  /// No description provided for @pleaseSelectUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a user'**
+  String get pleaseSelectUser;
+
+  /// No description provided for @selectFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Select File'**
+  String get selectFile;
+
+  /// No description provided for @fileDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'File Description (optional)'**
+  String get fileDescription;
+
+  /// No description provided for @enterFileDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter file description'**
+  String get enterFileDescription;
+
+  /// No description provided for @upload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get upload;
+
+  /// No description provided for @fileSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'File selected'**
+  String get fileSelected;
+
+  /// No description provided for @noFileSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No file selected'**
+  String get noFileSelected;
+
+  /// No description provided for @uploadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading file...'**
+  String get uploadingFile;
+
+  /// No description provided for @fileUploadedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'File uploaded successfully'**
+  String get fileUploadedSuccessfully;
+
+  /// No description provided for @errorUploadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error uploading file'**
+  String get errorUploadingFile;
+
+  /// No description provided for @downloadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading file...'**
+  String get downloadingFile;
+
+  /// No description provided for @fileDownloadedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'File downloaded successfully'**
+  String get fileDownloadedSuccessfully;
+
+  /// No description provided for @errorDownloadingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error downloading file'**
+  String get errorDownloadingFile;
+
+  /// No description provided for @pleaseSelectFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a file to upload'**
+  String get pleaseSelectFile;
 }
 
 class _AppLocalizationsDelegate

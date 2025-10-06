@@ -1293,4 +1293,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLoadingRawMaterials => 'Error loading raw materials';
+
+  @override
+  String get myTasks => 'My Tasks';
+
+  @override
+  String get searchTasks => 'Search tasks...';
+
+  @override
+  String get noTasksFound => 'No tasks found';
+
+  @override
+  String get tryAdjustingFilters => 'Try adjusting your filters';
+
+  @override
+  String get showAll => 'Show All';
+
+  @override
+  String get assignToMe => 'Assign to Me';
+
+  @override
+  String get returnTask => 'Return Task';
+
+  @override
+  String get reassign => 'Reassign';
+
+  @override
+  String get taskAssignedToYou => 'Task assigned to you';
+
+  @override
+  String get errorAssigningTask => 'Error assigning task';
+
+  @override
+  String get areYouSureReturnTask =>
+      'Are you sure you want to return this task?';
+
+  @override
+  String get taskReturned => 'Task returned successfully';
+
+  @override
+  String get errorReturningTask => 'Error returning task';
+
+  @override
+  String get reassignTask => 'Reassign Task';
+
+  @override
+  String get enterUserIdToReassign => 'Enter user ID to reassign task';
+
+  @override
+  String get userId => 'User ID';
+
+  @override
+  String get enterUserId => 'Enter user ID';
+
+  @override
+  String get pleaseEnterUserId => 'Please enter a user ID';
+
+  @override
+  String get taskReassigned => 'Task reassigned successfully';
+
+  @override
+  String get errorReassigningTask => 'Error reassigning task';
+
+  @override
+  String get addComment => 'Add Comment';
+
+  @override
+  String get comment => 'Comment';
+
+  @override
+  String get enterYourComment => 'Enter your comment';
+
+  @override
+  String get internalComment => 'Internal Comment';
+
+  @override
+  String get internalCommentDescription =>
+      'Only visible to internal team members';
+
+  @override
+  String get pleaseEnterComment => 'Please enter a comment';
+
+  @override
+  String get commentAdded => 'Comment added successfully';
+
+  @override
+  String get errorAddingComment => 'Error adding comment';
+
+  @override
+  String get addAttachment => 'Add Attachment';
+
+  @override
+  String get attachmentFeatureComingSoon => 'Attachment feature coming soon';
+
+  @override
+  String get typeMessage => 'Type a message...';
+
+  @override
+  String get sendMessage => 'Send';
+
+  @override
+  String get startConversation => 'Start a conversation below';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get selectUserToReassign => 'Select a user to reassign this task';
+
+  @override
+  String get selectUser => 'Select User';
+
+  @override
+  String get pleaseSelectUser => 'Please select a user';
+
+  @override
+  String get selectFile => 'Select File';
+
+  @override
+  String get fileDescription => 'File Description (optional)';
+
+  @override
+  String get enterFileDescription => 'Enter file description';
+
+  @override
+  String get upload => 'Upload';
+
+  @override
+  String get fileSelected => 'File selected';
+
+  @override
+  String get noFileSelected => 'No file selected';
+
+  @override
+  String get uploadingFile => 'Uploading file...';
+
+  @override
+  String get fileUploadedSuccessfully => 'File uploaded successfully';
+
+  @override
+  String get errorUploadingFile => 'Error uploading file';
+
+  @override
+  String get downloadingFile => 'Downloading file...';
+
+  @override
+  String get fileDownloadedSuccessfully => 'File downloaded successfully';
+
+  @override
+  String get errorDownloadingFile => 'Error downloading file';
+
+  @override
+  String get pleaseSelectFile => 'Please select a file to upload';
 }

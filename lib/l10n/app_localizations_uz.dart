@@ -1313,4 +1313,158 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get errorLoadingRawMaterials => 'Xom ashyoni yuklashda xato';
+
+  @override
+  String get myTasks => 'Mening vazifalarim';
+
+  @override
+  String get searchTasks => 'Vazifalarni qidirish...';
+
+  @override
+  String get noTasksFound => 'Vazifalar topilmadi';
+
+  @override
+  String get tryAdjustingFilters => 'Filtrlarni o\'zgartirib ko\'ring';
+
+  @override
+  String get showAll => 'Hammasini ko\'rsatish';
+
+  @override
+  String get assignToMe => 'Menga tayinlash';
+
+  @override
+  String get returnTask => 'Vazifani qaytarish';
+
+  @override
+  String get reassign => 'Qayta tayinlash';
+
+  @override
+  String get taskAssignedToYou => 'Vazifa sizga tayinlandi';
+
+  @override
+  String get errorAssigningTask => 'Vazifani tayinlashda xato';
+
+  @override
+  String get areYouSureReturnTask => 'Ushbu vazifani qaytarishni xohlaysizmi?';
+
+  @override
+  String get taskReturned => 'Vazifa muvaffaqiyatli qaytarildi';
+
+  @override
+  String get errorReturningTask => 'Vazifani qaytarishda xato';
+
+  @override
+  String get reassignTask => 'Vazifani qayta tayinlash';
+
+  @override
+  String get enterUserIdToReassign =>
+      'Qayta tayinlash uchun foydalanuvchi ID sini kiriting';
+
+  @override
+  String get userId => 'Foydalanuvchi ID';
+
+  @override
+  String get enterUserId => 'Foydalanuvchi ID sini kiriting';
+
+  @override
+  String get pleaseEnterUserId => 'Iltimos, foydalanuvchi ID sini kiriting';
+
+  @override
+  String get taskReassigned => 'Vazifa muvaffaqiyatli qayta tayinlandi';
+
+  @override
+  String get errorReassigningTask => 'Vazifani qayta tayinlashda xato';
+
+  @override
+  String get addComment => 'Izoh qo\'shish';
+
+  @override
+  String get comment => 'Izoh';
+
+  @override
+  String get enterYourComment => 'Izohingizni kiriting';
+
+  @override
+  String get internalComment => 'Ichki izoh';
+
+  @override
+  String get internalCommentDescription =>
+      'Faqat ichki jamoa a\'zolari ko\'radi';
+
+  @override
+  String get pleaseEnterComment => 'Iltimos, izoh kiriting';
+
+  @override
+  String get commentAdded => 'Izoh muvaffaqiyatli qo\'shildi';
+
+  @override
+  String get errorAddingComment => 'Izoh qo\'shishda xato';
+
+  @override
+  String get addAttachment => 'Fayl biriktirish';
+
+  @override
+  String get attachmentFeatureComingSoon =>
+      'Fayl biriktirish funksiyasi tez orada';
+
+  @override
+  String get typeMessage => 'Xabar yozing...';
+
+  @override
+  String get sendMessage => 'Yuborish';
+
+  @override
+  String get startConversation => 'Quyida suhbatni boshlang';
+
+  @override
+  String get noUsersFound => 'Foydalanuvchilar topilmadi';
+
+  @override
+  String get selectUserToReassign =>
+      'Vazifani qayta tayinlash uchun foydalanuvchini tanlang';
+
+  @override
+  String get selectUser => 'Foydalanuvchini tanlang';
+
+  @override
+  String get pleaseSelectUser => 'Iltimos, foydalanuvchini tanlang';
+
+  @override
+  String get selectFile => 'Faylni tanlang';
+
+  @override
+  String get fileDescription => 'Fayl tavsifi (ixtiyoriy)';
+
+  @override
+  String get enterFileDescription => 'Fayl tavsifini kiriting';
+
+  @override
+  String get upload => 'Yuklash';
+
+  @override
+  String get fileSelected => 'Fayl tanlandi';
+
+  @override
+  String get noFileSelected => 'Fayl tanlanmagan';
+
+  @override
+  String get uploadingFile => 'Fayl yuklanmoqda...';
+
+  @override
+  String get fileUploadedSuccessfully => 'Fayl muvaffaqiyatli yuklandi';
+
+  @override
+  String get errorUploadingFile => 'Faylni yuklashda xato';
+
+  @override
+  String get downloadingFile => 'Fayl yuklab olinmoqda...';
+
+  @override
+  String get fileDownloadedSuccessfully => 'Fayl muvaffaqiyatli yuklab olindi';
+
+  @override
+  String get errorDownloadingFile => 'Faylni yuklab olishda xato';
+
+  @override
+  String get pleaseSelectFile => 'Iltimos, yuklash uchun faylni tanlang';
 }

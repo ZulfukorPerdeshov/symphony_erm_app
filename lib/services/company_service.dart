@@ -103,4 +103,18 @@ class CompanyService {
     final response = await getCompanies(params);
     return response.data;
   }
+
+  /// Fetch all users associated with a company
+  static Future<List<CompanyUserDto>> getCompanyUsers(String companyId) async {
+    try {
+      final response = await ApiService.get<List<dynamic>>(
+        ApiConstants.companyServiceBaseUrl,
+        ApiConstants.companyUsersEndpoint(companyId),
+      );
+
+      return response.map((json) => CompanyUserDto.fromJson(json as Map<String, dynamic>)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

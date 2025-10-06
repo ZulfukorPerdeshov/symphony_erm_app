@@ -17,10 +17,12 @@ class ApiConstants {
   // User endpoints
   static const String userProfileEndpoint = '/api/users/profile';
   static const String avatarEndpoint = '/api/users/avatar';
+  static const String usersByIdsEndpoint = '/api/Users/by-Ids';
 
 // Company endpoints
   static const String myCompaniesEndpoint = '/api/Companies/my';
   static const String companiesEndpoint = '/api/Companies';
+  static String companyUsersEndpoint(String companyId) => '/api/companies/$companyId/users';
 
   // Inventory endpoints (company-scoped)
   static String productsEndpoint(String companyId) => '/api/Companies/$companyId/Products';
@@ -92,6 +94,9 @@ class ApiConstants {
   static String productionTaskCompleteEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/complete';
   static String productionTaskCancelEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/cancel';
   static String productionTaskProgressEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/progress';
+  static String productionTaskAssignToSelfEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/assign-to-self';
+  static String productionTaskReassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/reassign';
+  static String productionTaskUnassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/unassign';
 
   // Production task comments
   static String productionTaskCommentsEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/comments';
