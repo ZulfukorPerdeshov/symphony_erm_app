@@ -536,7 +536,7 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
-              runSpacing: 4,
+              runSpacing: 8,
               children: [
                 _buildInfoChip('${l10n.available}: ${item.availableQuantity}', Colors.green),
                 _buildInfoChip('${l10n.reserved}: ${item.reservedQuantity}', Colors.orange),
@@ -668,7 +668,7 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
-              runSpacing: 4,
+              runSpacing: 8,
               children: [
                 _buildInfoChip('${l10n.available}: ${item.availableQuantity.toStringAsFixed(2)} ${item.unit}', Colors.green),
                 _buildInfoChip('${l10n.reserved}: ${item.reservedQuantity.toStringAsFixed(2)} ${item.unit}', Colors.orange),
@@ -731,21 +731,23 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
   }
 
   Widget _buildInfoChip(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: color,
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
       ),
     );
   }
@@ -755,7 +757,7 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
@@ -763,15 +765,19 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -781,27 +787,29 @@ class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen>
   }
 
   void _showStockOperationsDialog(StockItem stockItem) {
-    showDialog(
-      context: context,
-      builder: (context) => StockOperationsDialog(
-        stockItem: stockItem,
-        warehouses: _allWarehouses,
-        onSuccess: () {
-          _loadStockItems();
-        },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => StockOperationsDialog(
+          stockItem: stockItem,
+          warehouses: _allWarehouses,
+          onSuccess: () {
+            _loadStockItems();
+          },
+        ),
       ),
     );
   }
 
   void _showRawMaterialOperationsDialog(RawMaterialStockItem rawMaterial) {
-    showDialog(
-      context: context,
-      builder: (context) => RawMaterialOperationsDialog(
-        rawMaterial: rawMaterial,
-        warehouses: _allWarehouses,
-        onSuccess: () {
-          _loadRawMaterials();
-        },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => RawMaterialOperationsDialog(
+          rawMaterial: rawMaterial,
+          warehouses: _allWarehouses,
+          onSuccess: () {
+            _loadRawMaterials();
+          },
+        ),
       ),
     );
   }

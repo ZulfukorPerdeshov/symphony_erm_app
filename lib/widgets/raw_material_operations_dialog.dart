@@ -227,203 +227,237 @@ class _RawMaterialOperationsDialogState extends State<RawMaterialOperationsDialo
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                const Icon(Icons.science, color: Color(AppColors.primaryIndigo)),
-                const SizedBox(width: 8),
-                Text(
-                  'Raw Material Operations',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(AppColors.textPrimary),
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Raw Material Operations'),
+        backgroundColor: const Color(AppColors.accentCyan),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Raw Material Info
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(AppColors.backgroundLight),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Raw Material Info
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(AppColors.backgroundLight),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.rawMaterial.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.rawMaterial.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  if (widget.rawMaterial.description.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(widget.rawMaterial.description),
-                  ],
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text('Total: ${widget.rawMaterial.quantity.toStringAsFixed(2)} ${widget.rawMaterial.unit}'),
-                      const SizedBox(width: 16),
-                      Text('Available: ${widget.rawMaterial.availableQuantity.toStringAsFixed(2)}'),
-                      const SizedBox(width: 16),
-                      Text('Reserved: ${widget.rawMaterial.reservedQuantity.toStringAsFixed(2)}'),
+                    if (widget.rawMaterial.description.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.rawMaterial.description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(AppColors.textSecondary),
+                        ),
+                      ),
                     ],
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      children: [
+                        _buildInfoBadge('Total', '${widget.rawMaterial.quantity.toStringAsFixed(2)} ${widget.rawMaterial.unit}', Colors.blue),
+                        _buildInfoBadge('Available', '${widget.rawMaterial.availableQuantity.toStringAsFixed(2)}', Colors.green),
+                        _buildInfoBadge('Reserved', '${widget.rawMaterial.reservedQuantity.toStringAsFixed(2)}', Colors.orange),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Operation Type Selection
+              const Text(
+                'Operation Type',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(AppColors.textPrimary),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildOperationChip(RawMaterialOperationType.adjust, 'Adjust', Icons.tune),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildOperationChip(RawMaterialOperationType.reserve, 'Reserve', Icons.lock),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Operation Type Selection
-            Text(
-              'Operation Type',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(AppColors.textPrimary),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildOperationChip(RawMaterialOperationType.release, 'Release', Icons.lock_open),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildOperationChip(RawMaterialOperationType.transfer, 'Transfer', Icons.swap_horiz),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildOperationChip(RawMaterialOperationType.adjust, 'Adjust', Icons.tune),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildOperationChip(RawMaterialOperationType.reserve, 'Reserve', Icons.lock),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildOperationChip(RawMaterialOperationType.release, 'Release', Icons.lock_open),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildOperationChip(RawMaterialOperationType.transfer, 'Transfer', Icons.swap_horiz),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-            // Quantity Input
-            TextField(
-              controller: _quantityController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: '${_quantityLabel} (${widget.rawMaterial.unit})',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                helperText: _selectedOperation == RawMaterialOperationType.adjust
-                    ? 'Use positive numbers to add, negative to subtract'
-                    : 'Max: ${_maxQuantity.toStringAsFixed(2)}',
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Reason Selection
-            DropdownButtonFormField<String>(
-              value: _reasonController.text.isEmpty ? null : _reasonController.text,
-              decoration: InputDecoration(
-                labelText: 'Reason *',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              items: _currentReasons.map((reason) {
-                return DropdownMenuItem(value: reason, child: Text(reason));
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  _reasonController.text = value;
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Warehouse Selection (for transfer only)
-            if (_selectedOperation == RawMaterialOperationType.transfer) ...[
-              DropdownButtonFormField<String>(
-                value: _selectedWarehouseId,
+              // Quantity Input
+              TextField(
+                controller: _quantityController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                  labelText: 'Destination Warehouse *',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  labelText: '${_quantityLabel} (${widget.rawMaterial.unit})',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  helperText: _selectedOperation == RawMaterialOperationType.adjust
+                      ? 'Use positive numbers to add, negative to subtract'
+                      : 'Max: ${_maxQuantity.toStringAsFixed(2)}',
                 ),
-                items: widget.warehouses
-                    .where((w) => w.id != widget.rawMaterial.warehouseId && w.isActive)
-                    .map((warehouse) {
-                  return DropdownMenuItem(
-                    value: warehouse.id,
-                    child: Text(warehouse.name),
-                  );
+              ),
+              const SizedBox(height: 16),
+
+              // Reason Selection
+              DropdownButtonFormField<String>(
+                value: _reasonController.text.isEmpty || !_currentReasons.contains(_reasonController.text)
+                    ? null
+                    : _reasonController.text,
+                decoration: InputDecoration(
+                  labelText: 'Reason *',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                items: _currentReasons.map((reason) {
+                  return DropdownMenuItem(value: reason, child: Text(reason));
                 }).toList(),
                 onChanged: (value) {
-                  setState(() => _selectedWarehouseId = value);
+                  if (value != null) {
+                    setState(() {
+                      _reasonController.text = value;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 16),
-            ],
 
-            // Notes Input
-            TextField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: 'Notes (Optional)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              // Warehouse Selection (for transfer only)
+              if (_selectedOperation == RawMaterialOperationType.transfer) ...[
+                DropdownButtonFormField<String>(
+                  value: _selectedWarehouseId,
+                  decoration: InputDecoration(
+                    labelText: 'Destination Warehouse *',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: widget.warehouses
+                      .where((w) => w.id != widget.rawMaterial.warehouseId && w.isActive)
+                      .map((warehouse) {
+                    return DropdownMenuItem(
+                      value: warehouse.id,
+                      child: Text(warehouse.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => _selectedWarehouseId = value);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Notes Input
+              TextField(
+                controller: _notesController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Action Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _performOperation,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(AppColors.primaryIndigo),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(_operationTitle),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoBadge(String label, String value, Color color) {
+    return IntrinsicWidth(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: color,
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _performOperation,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(AppColors.primaryIndigo),
-                      foregroundColor: Colors.white,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(_operationTitle),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -434,30 +468,43 @@ class _RawMaterialOperationsDialogState extends State<RawMaterialOperationsDialo
   Widget _buildOperationChip(RawMaterialOperationType type, String label, IconData icon) {
     final isSelected = _selectedOperation == type;
     return GestureDetector(
-      onTap: () => setState(() => _selectedOperation = type),
+      onTap: () {
+        setState(() {
+          _selectedOperation = type;
+          // Clear reason when operation type changes
+          _reasonController.clear();
+        });
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(AppColors.primaryIndigo)
               : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected
+              ? Border.all(color: const Color(AppColors.primaryIndigo), width: 2)
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 16,
+              size: 18,
               color: isSelected ? Colors.white : Colors.grey.shade600,
             ),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : Colors.grey.shade600,
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
