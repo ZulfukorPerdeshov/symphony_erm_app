@@ -1457,4 +1457,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pleaseSelectFile => 'Пожалуйста, выберите файл для загрузки';
+
+  @override
+  String get open => 'Открыть';
+
+  @override
+  String get errorOpeningFile => 'Ошибка открытия файла';
 }

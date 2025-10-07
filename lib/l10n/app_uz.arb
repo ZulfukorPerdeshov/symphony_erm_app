@@ -495,5 +495,7 @@
   "downloadingFile": "Fayl yuklab olinmoqda...",
   "fileDownloadedSuccessfully": "Fayl muvaffaqiyatli yuklab olindi",
   "errorDownloadingFile": "Faylni yuklab olishda xato",
-  "pleaseSelectFile": "Iltimos, yuklash uchun faylni tanlang"
+  "pleaseSelectFile": "Iltimos, yuklash uchun faylni tanlang",
+  "open": "Ochish",
+  "errorOpeningFile": "Faylni ochishda xato"
 }

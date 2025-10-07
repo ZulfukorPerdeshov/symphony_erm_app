@@ -495,5 +495,7 @@
   "downloadingFile": "Скачивание файла...",
   "fileDownloadedSuccessfully": "Файл успешно скачан",
   "errorDownloadingFile": "Ошибка скачивания файла",
-  "pleaseSelectFile": "Пожалуйста, выберите файл для загрузки"
+  "pleaseSelectFile": "Пожалуйста, выберите файл для загрузки",
+  "open": "Открыть",
+  "errorOpeningFile": "Ошибка открытия файла"
 }

@@ -1445,4 +1445,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectFile => 'Please select a file to upload';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get errorOpeningFile => 'Error opening file';
 }

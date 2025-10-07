@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/production.dart';
 import '../../models/company.dart';
@@ -1857,21 +1858,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
         attachment.id,
       );
 
-      // Get downloads directory
-      Directory? directory;
-      if (Platform.isAndroid) {
-        directory = await getExternalStorageDirectory();
-      } else if (Platform.isIOS) {
-        directory = await getApplicationDocumentsDirectory();
-      } else {
-        directory = await getDownloadsDirectory();
-      }
+      // Get Documents directory (works on all platforms)
+      final directory = await getApplicationDocumentsDirectory();
 
-      if (directory == null) {
-        throw Exception('Could not access storage directory');
-      }
-
-      // Create file path
+      // Create file path in Documents folder
       final filePath = '${directory.path}/${attachment.fileName}';
       final file = File(filePath);
 
@@ -1885,17 +1875,47 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
             content: Text('${l10n.fileDownloadedSuccessfully}\n$filePath'),
             duration: const Duration(seconds: 5),
             action: SnackBarAction(
-              label: l10n.ok,
-              onPressed: () {},
+              label: l10n.open,
+              onPressed: () => _openFile(filePath),
             ),
           ),
         );
+
+        // Automatically try to open the file
+        await _openFile(filePath);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${l10n.errorDownloadingFile}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openFile(String filePath) async {
+    try {
+      final result = await OpenFilex.open(filePath);
+
+      // Check if file opening failed
+      if (result.type != ResultType.done) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${AppLocalizations.of(context)!.errorOpeningFile}: ${result.message}'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.errorOpeningFile}: $e'),
+            duration: const Duration(seconds: 3),
+          ),
         );
       }
     }

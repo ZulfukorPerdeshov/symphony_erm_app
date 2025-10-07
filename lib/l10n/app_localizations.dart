@@ -2943,6 +2943,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a file to upload'**
   String get pleaseSelectFile;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @errorOpeningFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error opening file'**
+  String get errorOpeningFile;
 }
 
 class _AppLocalizationsDelegate

@@ -495,5 +495,7 @@
   "downloadingFile": "Downloading file...",
   "fileDownloadedSuccessfully": "File downloaded successfully",
   "errorDownloadingFile": "Error downloading file",
-  "pleaseSelectFile": "Please select a file to upload"
+  "pleaseSelectFile": "Please select a file to upload",
+  "open": "Open",
+  "errorOpeningFile": "Error opening file"
 }

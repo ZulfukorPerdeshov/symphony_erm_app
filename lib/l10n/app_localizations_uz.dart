@@ -1467,4 +1467,10 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get pleaseSelectFile => 'Iltimos, yuklash uchun faylni tanlang';
+
+  @override
+  String get open => 'Ochish';
+
+  @override
+  String get errorOpeningFile => 'Faylni ochishda xato';
 }
