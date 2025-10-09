@@ -454,7 +454,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                         Text(
                           order.orderNumber,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Color(AppColors.textPrimary),
                           ),
@@ -463,7 +463,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                         Text(
                           order.customerName,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Color(AppColors.textSecondary),
                           ),
                         ),
@@ -482,31 +482,25 @@ class _OrdersScreenState extends State<OrdersScreen>
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.shopping_cart,
-                      size: 16,
-                      color: Color(AppColors.textSecondary),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${order.totalItems} ${l10n.items}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(AppColors.textSecondary),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: Color(AppColors.textSecondary),
-                    ),
-                    const SizedBox(width: 6),
+                    // Icon(
+                    //   Icons.shopping_cart,
+                    //   size: 16,
+                    //   color: Color(AppColors.textSecondary),
+                    // ),
+                    // const SizedBox(width: 6),
+                    // Text(
+                    //   '${order.totalItems} ${l10n.items}',
+                    //   style: const TextStyle(
+                    //     fontSize: 13,
+                    //     color: Color(AppColors.textSecondary),
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 6),                                       
                     Expanded(
                       child: Text(
                         _formatDate(order.orderDate),
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 10,
                           color: Color(AppColors.textSecondary),
                         ),
                       ),
@@ -514,7 +508,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                     Text(
                       '${order.formattedTotalAmount}',
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Color(AppColors.accentCyan),
                       ),
@@ -599,7 +593,7 @@ class _OrdersScreenState extends State<OrdersScreen>
       child: Text(
         status.name.toUpperCase(),
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: FontWeight.w600,
           color: textColor,
         ),

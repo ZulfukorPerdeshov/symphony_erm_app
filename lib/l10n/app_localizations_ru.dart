@@ -1329,6 +1329,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reassign => 'Переназначить';
 
   @override
+  String get startProgress => 'Начать выполнение';
+
+  @override
+  String get changeDueDate => 'Изменить срок';
+
+  @override
+  String get changeProgress => 'Изменить прогресс';
+
+  @override
+  String get statusUpdated => 'Статус успешно обновлен';
+
+  @override
+  String get dueDateUpdated => 'Срок успешно обновлен';
+
+  @override
+  String get invalidProgressValue =>
+      'Введите корректное значение прогресса (0-100)';
+
+  @override
   String get taskAssignedToYou => 'Задача назначена вам';
 
   @override
@@ -1371,6 +1390,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get comment => 'Комментарий';
+
+  @override
+  String get writeComment => 'Написать комментарий...';
 
   @override
   String get enterYourComment => 'Введите ваш комментарий';
@@ -1463,4 +1485,91 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorOpeningFile => 'Ошибка открытия файла';
+
+  @override
+  String get companyTasks => 'Задачи компании';
+
+  @override
+  String get filters => 'Фильтры';
+
+  @override
+  String get clearAll => 'Очистить все';
+
+  @override
+  String get showOverdueOnly => 'Показать только просроченные';
+
+  @override
+  String get applyFilters => 'Применить фильтры';
+
+  @override
+  String get sortBy => 'Сортировать по';
+
+  @override
+  String get createdDate => 'Дата создания';
+
+  @override
+  String get descending => 'По убыванию';
+
+  @override
+  String get apply => 'Применить';
+
+  @override
+  String get myResults => 'Мои результаты';
+
+  @override
+  String get viewYourPerformance => 'Просмотр ваших результатов';
+
+  @override
+  String get finances => 'Финансы';
+
+  @override
+  String get manageYourFinances => 'Управление финансами';
+
+  @override
+  String get appPreferences => 'Настройки приложения';
+
+  @override
+  String get support => 'Поддержка';
+
+  @override
+  String get getHelpAndSupport => 'Получить помощь и поддержку';
+
+  @override
+  String get chat => 'Чат';
+
+  @override
+  String get messageAndSupport => 'Сообщения и поддержка';
+
+  @override
+  String get user => 'Пользователь';
+
+  @override
+  String get comingSoon => 'Скоро будет';
+
+  @override
+  String get viewCompanyTasks => 'Посмотреть задачи компании';
+
+  @override
+  String get notSet => 'Не установлено';
+
+  @override
+  String get assignee => 'Исполнитель';
+
+  @override
+  String get unassigned => 'Не назначено';
+
+  @override
+  String get editTask => 'Редактировать задачу';
+
+  @override
+  String get markAsComplete => 'Отметить как выполненную';
+
+  @override
+  String get uploadFile => 'Загрузить файл';
+
+  @override
+  String get progressUpdated => 'Прогресс успешно обновлен';
+
+  @override
+  String get reason => 'Причина';
 }

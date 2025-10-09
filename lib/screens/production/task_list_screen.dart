@@ -15,38 +15,94 @@ class TaskListScreen extends StatefulWidget {
 
 class _TaskListScreenState extends State<TaskListScreen> {
   List<MyProductionTaskDto> _tasks = [];
-  List<MyProductionTaskDto> _filteredTasks = [];
   bool _isLoading = false;
-  int _selectedFilterIndex = 0; // 0: All, 1: To Do, 2: In Progress, 3: Overdue
-  String _searchQuery = '';
+  bool _isLoadingMore = false;
+  int _currentPage = 0;
+  final int _pageSize = 20;
+  bool _hasMoreData = true;
+
+  // Filters
+  TaskStatus? _statusFilter;
+  TaskPriority? _priorityFilter;
+  bool? _isOverdueFilter;
+  DateTime? _fromDate;
+  DateTime? _toDate;
+
+  // Sorting
+  String _sortBy = 'CreatedAt';
+  bool _sortDescending = true;
+
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _loadTasks(reset: true);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadTasks() async {
-    setState(() => _isLoading = true);
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoadingMore && _hasMoreData) {
+        _loadTasks();
+      }
+    }
+  }
+
+  Future<void> _loadTasks({bool reset = false}) async {
+    if (reset) {
+      setState(() {
+        _currentPage = 0;
+        _tasks = [];
+        _hasMoreData = true;
+        _isLoading = true;
+      });
+    } else {
+      if (_isLoadingMore || !_hasMoreData) return;
+      setState(() => _isLoadingMore = true);
+    }
 
     try {
       final companyId = CompanyService.getCurrentCompanyIdOrThrow();
-      final tasks = await InventoryService.getMyProductionTasks(companyId);
+
+      final request = ProductionTaskListRequest(
+        status: _statusFilter,
+        priority: _priorityFilter,
+        isOverdue: _isOverdueFilter,
+        fromDate: _fromDate,
+        toDate: _toDate,
+        skip: _currentPage * _pageSize,
+        take: _pageSize,
+        orderBy: _sortBy,
+        orderDescending: _sortDescending,
+      );
+
+      final tasks = await InventoryService.getProductionTasks(companyId, request);
 
       setState(() {
-        _tasks = tasks;
-        _applyFilters();
+        if (reset) {
+          _tasks = tasks;
+        } else {
+          _tasks.addAll(tasks);
+        }
+        _currentPage++;
+        _hasMoreData = tasks.length == _pageSize;
         _isLoading = false;
+        _isLoadingMore = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _isLoadingMore = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingData}: $e')),
@@ -55,49 +111,71 @@ class _TaskListScreenState extends State<TaskListScreen> {
     }
   }
 
-  void _applyFilters() {
-    List<MyProductionTaskDto> filtered = _tasks;
-
-    // Apply status filter
-    switch (_selectedFilterIndex) {
-      case 1: // To Do
-        filtered = filtered.where((task) => task.status == 0).toList();
-        break;
-      case 2: // In Progress
-        filtered = filtered.where((task) => task.status == 1).toList();
-        break;
-      case 3: // Overdue
-        filtered = filtered.where((task) => task.isOverdue).toList();
-        break;
-      default: // All
-        break;
-    }
-
-    // Apply search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((task) {
-        return task.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            task.description.toLowerCase().contains(_searchQuery.toLowerCase());
-      }).toList();
-    }
-
-    setState(() {
-      _filteredTasks = filtered;
-    });
+  void _showFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _FilterDialog(
+        statusFilter: _statusFilter,
+        priorityFilter: _priorityFilter,
+        isOverdueFilter: _isOverdueFilter,
+        fromDate: _fromDate,
+        toDate: _toDate,
+        onApply: (status, priority, isOverdue, fromDate, toDate) {
+          setState(() {
+            _statusFilter = status;
+            _priorityFilter = priority;
+            _isOverdueFilter = isOverdue;
+            _fromDate = fromDate;
+            _toDate = toDate;
+          });
+          _loadTasks(reset: true);
+        },
+        onClear: () {
+          setState(() {
+            _statusFilter = null;
+            _priorityFilter = null;
+            _isOverdueFilter = null;
+            _fromDate = null;
+            _toDate = null;
+          });
+          _loadTasks(reset: true);
+        },
+      ),
+    );
   }
 
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-      _applyFilters();
-    });
+  void _showSortDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _SortDialog(
+        sortBy: _sortBy,
+        sortDescending: _sortDescending,
+        onApply: (sortBy, descending) {
+          setState(() {
+            _sortBy = sortBy;
+            _sortDescending = descending;
+          });
+          _loadTasks(reset: true);
+        },
+      ),
+    );
   }
 
-  void _onFilterChanged(int index) {
-    setState(() {
-      _selectedFilterIndex = index;
-      _applyFilters();
-    });
+  int get _activeFilterCount {
+    int count = 0;
+    if (_statusFilter != null) count++;
+    if (_priorityFilter != null) count++;
+    if (_isOverdueFilter != null) count++;
+    if (_fromDate != null) count++;
+    if (_toDate != null) count++;
+    return count;
   }
 
   @override
@@ -107,58 +185,85 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.myTasks),
+        title: Text(l10n.companyTasks),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadTasks,
+            onPressed: () => _loadTasks(reset: true),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Search Bar
-          Padding(
+          // Filter and Sort Controls
+          Container(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              decoration: InputDecoration(
-                hintText: l10n.searchTasks,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: theme.colorScheme.surface,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
               ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchTasks,
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: theme.colorScheme.surface,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Badge(
+                  isLabelVisible: _activeFilterCount > 0,
+                  label: Text('$_activeFilterCount'),
+                  child: IconButton.filled(
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: _showFilterDialog,
+                    style: IconButton.styleFrom(
+                      backgroundColor: _activeFilterCount > 0
+                          ? const Color(AppColors.primaryIndigo)
+                          : theme.colorScheme.surfaceContainerHighest,
+                      foregroundColor: _activeFilterCount > 0 ? Colors.white : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filled(
+                  icon: const Icon(Icons.sort),
+                  onPressed: _showSortDialog,
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Filter Tabs
-          _buildFilterTabs(),
-
           // Task Count
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Text(
-                  '${_filteredTasks.length} ${l10n.tasks}',
+                  '${_tasks.length} ${l10n.tasks}',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
+                if (_hasMoreData) ...[
+                  const SizedBox(width: 8),
+                  Icon(Icons.more_horiz, size: 16, color: Colors.grey[600]),
+                ],
               ],
             ),
           ),
@@ -167,67 +272,28 @@ class _TaskListScreenState extends State<TaskListScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _filteredTasks.isEmpty
+                : _tasks.isEmpty
                     ? _buildEmptyState()
                     : RefreshIndicator(
-                        onRefresh: _loadTasks,
+                        onRefresh: () => _loadTasks(reset: true),
                         child: ListView.builder(
+                          controller: _scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: _filteredTasks.length,
+                          itemCount: _tasks.length + (_isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
-                            final task = _filteredTasks[index];
+                            if (index == _tasks.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
+                            final task = _tasks[index];
                             return _buildTaskCard(task);
                           },
                         ),
                       ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilterTabs() {
-    final l10n = AppLocalizations.of(context)!;
-    final labels = [l10n.all, 'To Do', l10n.inProgress, 'Overdue'];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: labels.asMap().entries.map((entry) {
-          final index = entry.key;
-          final label = entry.value;
-          return Padding(
-            padding: EdgeInsets.only(right: index < labels.length - 1 ? 12 : 0),
-            child: _buildFilterChip(label, _selectedFilterIndex == index, () {
-              _onFilterChanged(index);
-            }),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(AppColors.primaryIndigo) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? const Color(AppColors.primaryIndigo) : theme.colorScheme.outline,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : theme.colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
       ),
     );
   }
@@ -325,24 +391,23 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   _buildTaskBadge(
                     task.statusDisplay,
                     color,
                   ),
-                  const SizedBox(width: 8),
                   _buildTaskBadge(
                     task.priorityDisplay,
                     _getPriorityColor(task.priority),
                   ),
-                  if (task.isOverdue) ...[
-                    const SizedBox(width: 8),
+                  if (task.isOverdue)
                     _buildTaskBadge(
                       AppLocalizations.of(context)!.taskIsOverdue,
                       const Color(AppColors.error),
                     ),
-                  ],
                 ],
               ),
               const SizedBox(height: 12),
@@ -485,7 +550,257 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     // Refresh tasks if task was updated
     if (result == true) {
-      _loadTasks();
+      _loadTasks(reset: true);
     }
+  }
+}
+
+// Filter Dialog Widget
+class _FilterDialog extends StatefulWidget {
+  final TaskStatus? statusFilter;
+  final TaskPriority? priorityFilter;
+  final bool? isOverdueFilter;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final Function(TaskStatus?, TaskPriority?, bool?, DateTime?, DateTime?) onApply;
+  final VoidCallback onClear;
+
+  const _FilterDialog({
+    required this.statusFilter,
+    required this.priorityFilter,
+    required this.isOverdueFilter,
+    required this.fromDate,
+    required this.toDate,
+    required this.onApply,
+    required this.onClear,
+  });
+
+  @override
+  State<_FilterDialog> createState() => _FilterDialogState();
+}
+
+class _FilterDialogState extends State<_FilterDialog> {
+  late TaskStatus? _status;
+  late TaskPriority? _priority;
+  late bool? _isOverdue;
+  late DateTime? _fromDate;
+  late DateTime? _toDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _status = widget.statusFilter;
+    _priority = widget.priorityFilter;
+    _isOverdue = widget.isOverdueFilter;
+    _fromDate = widget.fromDate;
+    _toDate = widget.toDate;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.filters,
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () {
+                  widget.onClear();
+                  Navigator.pop(context);
+                },
+                child: Text(l10n.clearAll),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Status Filter
+          Text(l10n.status, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildFilterChip(l10n.all, _status == null, () => setState(() => _status = null)),
+              _buildFilterChip(l10n.notStarted, _status == TaskStatus.notStarted, () => setState(() => _status = TaskStatus.notStarted)),
+              _buildFilterChip(l10n.inProgress, _status == TaskStatus.inProgress, () => setState(() => _status = TaskStatus.inProgress)),
+              _buildFilterChip(l10n.onHold, _status == TaskStatus.onHold, () => setState(() => _status = TaskStatus.onHold)),
+              _buildFilterChip(l10n.completed, _status == TaskStatus.completed, () => setState(() => _status = TaskStatus.completed)),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Priority Filter
+          Text(l10n.priority, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildFilterChip(l10n.all, _priority == null, () => setState(() => _priority = null)),
+              _buildFilterChip(l10n.low, _priority == TaskPriority.low, () => setState(() => _priority = TaskPriority.low)),
+              _buildFilterChip(l10n.medium, _priority == TaskPriority.medium, () => setState(() => _priority = TaskPriority.medium)),
+              _buildFilterChip(l10n.high, _priority == TaskPriority.high, () => setState(() => _priority = TaskPriority.high)),
+              _buildFilterChip(l10n.urgent, _priority == TaskPriority.urgent, () => setState(() => _priority = TaskPriority.urgent)),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Overdue Filter
+          CheckboxListTile(
+            title: Text(l10n.showOverdueOnly),
+            value: _isOverdue ?? false,
+            onChanged: (value) => setState(() => _isOverdue = value == true ? true : null),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 24),
+
+          // Apply Button
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                widget.onApply(_status, _priority, _isOverdue, _fromDate, _toDate);
+                Navigator.pop(context);
+              },
+              child: Text(l10n.applyFilters),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(AppColors.primaryIndigo) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? const Color(AppColors.primaryIndigo) : theme.colorScheme.outline,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Sort Dialog Widget
+class _SortDialog extends StatefulWidget {
+  final String sortBy;
+  final bool sortDescending;
+  final Function(String, bool) onApply;
+
+  const _SortDialog({
+    required this.sortBy,
+    required this.sortDescending,
+    required this.onApply,
+  });
+
+  @override
+  State<_SortDialog> createState() => _SortDialogState();
+}
+
+class _SortDialogState extends State<_SortDialog> {
+  late String _sortBy;
+  late bool _sortDescending;
+
+  @override
+  void initState() {
+    super.initState();
+    _sortBy = widget.sortBy;
+    _sortDescending = widget.sortDescending;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.sortBy,
+            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+
+          RadioListTile<String>(
+            title: Text(l10n.createdDate),
+            value: 'CreatedAt',
+            groupValue: _sortBy,
+            onChanged: (value) => setState(() => _sortBy = value!),
+            contentPadding: EdgeInsets.zero,
+          ),
+          RadioListTile<String>(
+            title: Text(l10n.dueDate),
+            value: 'PlannedEndDate',
+            groupValue: _sortBy,
+            onChanged: (value) => setState(() => _sortBy = value!),
+            contentPadding: EdgeInsets.zero,
+          ),
+          RadioListTile<String>(
+            title: Text(l10n.priority),
+            value: 'Priority',
+            groupValue: _sortBy,
+            onChanged: (value) => setState(() => _sortBy = value!),
+            contentPadding: EdgeInsets.zero,
+          ),
+          RadioListTile<String>(
+            title: Text(l10n.progress),
+            value: 'ProgressPercentage',
+            groupValue: _sortBy,
+            onChanged: (value) => setState(() => _sortBy = value!),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 16),
+
+          SwitchListTile(
+            title: Text(l10n.descending),
+            value: _sortDescending,
+            onChanged: (value) => setState(() => _sortDescending = value),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 24),
+
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                widget.onApply(_sortBy, _sortDescending);
+                Navigator.pop(context);
+              },
+              child: Text(l10n.apply),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -396,6 +396,7 @@ class MyProductionTaskDto {
   final List<ProductionTaskAttachmentDto> attachments;
   final bool isOverdue;
   final String? duration;
+  final String? productionStageName;
 
   MyProductionTaskDto({
     required this.id,
@@ -424,6 +425,7 @@ class MyProductionTaskDto {
     required this.attachments,
     required this.isOverdue,
     this.duration,
+    this.productionStageName,
   });
 
   factory MyProductionTaskDto.fromJson(Map<String, dynamic> json) {
@@ -466,6 +468,7 @@ class MyProductionTaskDto {
           .toList(),
       isOverdue: json['isOverdue'] ?? false,
       duration: json['duration'],
+      productionStageName: json['productionStageName'],
     );
   }
 
@@ -704,17 +707,50 @@ class CancelTaskRequest {
 }
 
 class UpdateTaskProgressRequest {
+  final String taskId;
   final int progressPercentage;
   final String? notes;
 
   UpdateTaskProgressRequest({
+    required this.taskId,
     required this.progressPercentage,
     this.notes,
   });
 
   Map<String, dynamic> toJson() => {
+        'taskId': taskId,
         'progressPercentage': progressPercentage,
         'notes': notes,
+      };
+}
+
+class UpdateTaskStatusRequest {
+  final String taskId;
+  final int status;
+
+  UpdateTaskStatusRequest({
+    required this.taskId,
+    required this.status,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'taskId': taskId,
+        'status': status,
+      };
+}
+
+class UpdateTaskDueDateRequest {
+  final String taskId;
+  final DateTime plannedEndDate;
+
+  UpdateTaskDueDateRequest({
+    required this.taskId,
+    required this.plannedEndDate,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'taskId': taskId,
+        'plannedEndDate': plannedEndDate.toIso8601String(),
       };
 }
 
@@ -770,4 +806,54 @@ class ReassignTaskRequest {
         'userId': userId,
         'roleId': roleId,
       };
+}
+
+class ProductionTaskListRequest {
+  final String? productionStageId;
+  final String? assignedToUserId;
+  final String? assignedToRoleId;
+  final TaskStatus? status;
+  final TaskPriority? priority;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final bool? isOverdue;
+  final int skip;
+  final int take;
+  final String? orderBy;
+  final bool orderDescending;
+
+  ProductionTaskListRequest({
+    this.productionStageId,
+    this.assignedToUserId,
+    this.assignedToRoleId,
+    this.status,
+    this.priority,
+    this.fromDate,
+    this.toDate,
+    this.isOverdue,
+    this.skip = 0,
+    this.take = 50,
+    this.orderBy = 'CreatedAt',
+    this.orderDescending = true,
+  });
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'skip': skip,
+      'take': take,
+      'orderDescending': orderDescending,
+    };
+
+    if (productionStageId != null) map['productionStageId'] = productionStageId;
+    if (assignedToUserId != null) map['assignedToUserId'] = assignedToUserId;
+    if (assignedToRoleId != null) map['assignedToRoleId'] = assignedToRoleId;
+    if (status != null) map['status'] = status!.index;
+    if (priority != null) map['priority'] = priority!.index;
+    if (fromDate != null) map['fromDate'] = fromDate!.toIso8601String();
+    if (toDate != null) map['toDate'] = toDate!.toIso8601String();
+    if (isOverdue != null) map['isOverdue'] = isOverdue;
+    if (orderBy != null) map['orderBy'] = orderBy;
+
+    return map;
+  }
 }

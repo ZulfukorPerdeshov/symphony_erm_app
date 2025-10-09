@@ -9,6 +9,7 @@ import '../services/company_service.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../widgets/company_selector.dart';
+import '../widgets/app_drawer.dart';
 import '../models/production.dart';
 import '../models/user.dart';
 import '../main.dart';
@@ -193,12 +194,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final user = AuthService.currentUser;
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${_getGreeting()} ${user?.firstName ?? ''}',
+              '${_getGreeting()} ${user?.firstName ?? ''}'+'!',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             Text(
@@ -231,9 +233,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Header with description
                   Text(
                     l10n.allActivitiesInOnePlace,
-                    style: theme.textTheme.headlineSmall?.copyWith(
+                    style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
+                      color: Color(AppColors.primaryIndigo),
                     ),
                   ),
             // const SizedBox(height: 8),
@@ -243,10 +245,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             //     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             //   ),
             // ),
-            const SizedBox(height: 24),
+            // const SizedBox(height: 24),
 
-            // Task Status Tabs
-            _buildTaskStatusTabs(context),
+            // // Task Status Tabs
+            // _buildTaskStatusTabs(context),
             const SizedBox(height: 24),
 
             // Quick Stats Cards
@@ -411,9 +413,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  l10n.taskOverview,
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    l10n.taskOverview,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.more_horiz),
@@ -530,9 +535,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _selectedTabIndex == 0 ? l10n.tasks : _getTabLabel(_selectedTabIndex),
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    _selectedTabIndex == 0 ? l10n.tasks : _getTabLabel(_selectedTabIndex),
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 if (_filteredTasks.isNotEmpty)
                   TextButton(
@@ -565,6 +573,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TaskListScreen(),
+                          ),
+                        ).then((_) => _loadMyTasks());
+                      },
+                      icon: const Icon(Icons.business),
+                      label: Text(l10n.viewCompanyTasks),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(AppColors.primaryIndigo),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],
@@ -624,6 +648,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
@@ -639,51 +664,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       if (task.isOverdue)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(AppColors.error).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.taskIsOverdue,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(AppColors.error),
-                              fontWeight: FontWeight.w600,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            margin: const EdgeInsets.only(left: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(AppColors.error).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.taskIsOverdue,
+                              style: const TextStyle(
+                                fontSize: 9,
+                                color: Color(AppColors.error),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Text(
-                        task.statusDisplay,
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        ' • ${task.progressPercentage}%',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                      if (task.plannedEndDate != null) ...[
-                        Text(
-                          ' • Due ${_formatTaskDate(task.plannedEndDate!)}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ],
+                  Text(
+                    [
+                      task.statusDisplay,
+                      '${task.progressPercentage}%',
+                      if (task.plannedEndDate != null) 'Due ${_formatTaskDate(task.plannedEndDate!)}',
+                    ].join(' • '),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

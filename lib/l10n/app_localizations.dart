@@ -2692,6 +2692,42 @@ abstract class AppLocalizations {
   /// **'Reassign'**
   String get reassign;
 
+  /// No description provided for @startProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Progress'**
+  String get startProgress;
+
+  /// No description provided for @changeDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Due Date'**
+  String get changeDueDate;
+
+  /// No description provided for @changeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Progress'**
+  String get changeProgress;
+
+  /// No description provided for @statusUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Status updated successfully'**
+  String get statusUpdated;
+
+  /// No description provided for @dueDateUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date updated successfully'**
+  String get dueDateUpdated;
+
+  /// No description provided for @invalidProgressValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid progress value (0-100)'**
+  String get invalidProgressValue;
+
   /// No description provided for @taskAssignedToYou.
   ///
   /// In en, this message translates to:
@@ -2775,6 +2811,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Comment'**
   String get comment;
+
+  /// No description provided for @writeComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment...'**
+  String get writeComment;
 
   /// No description provided for @enterYourComment.
   ///
@@ -2955,6 +2997,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error opening file'**
   String get errorOpeningFile;
+
+  /// No description provided for @companyTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Tasks'**
+  String get companyTasks;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @showOverdueOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Overdue Only'**
+  String get showOverdueOnly;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get applyFilters;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort By'**
+  String get sortBy;
+
+  /// No description provided for @createdDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Created Date'**
+  String get createdDate;
+
+  /// No description provided for @descending.
+  ///
+  /// In en, this message translates to:
+  /// **'Descending'**
+  String get descending;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @myResults.
+  ///
+  /// In en, this message translates to:
+  /// **'My Results'**
+  String get myResults;
+
+  /// No description provided for @viewYourPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'View your performance'**
+  String get viewYourPerformance;
+
+  /// No description provided for @finances.
+  ///
+  /// In en, this message translates to:
+  /// **'Finances'**
+  String get finances;
+
+  /// No description provided for @manageYourFinances.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your finances'**
+  String get manageYourFinances;
+
+  /// No description provided for @appPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'App preferences'**
+  String get appPreferences;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
+  /// No description provided for @getHelpAndSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help and support'**
+  String get getHelpAndSupport;
+
+  /// No description provided for @chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chat;
+
+  /// No description provided for @messageAndSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Message and support'**
+  String get messageAndSupport;
+
+  /// No description provided for @user.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get user;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// No description provided for @viewCompanyTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'View Company Tasks'**
+  String get viewCompanyTasks;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Set'**
+  String get notSet;
+
+  /// No description provided for @assignee.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignee'**
+  String get assignee;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get unassigned;
+
+  /// No description provided for @editTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task'**
+  String get editTask;
+
+  /// No description provided for @markAsComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Complete'**
+  String get markAsComplete;
+
+  /// No description provided for @uploadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload File'**
+  String get uploadFile;
+
+  /// No description provided for @progressUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress updated successfully'**
+  String get progressUpdated;
+
+  /// No description provided for @reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reason;
 }
 
 class _AppLocalizationsDelegate

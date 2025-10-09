@@ -86,6 +86,7 @@ class ApiConstants {
   static const String productionTasksEndpoint = '/api/production/tasks';
 
   // Production tasks endpoints (company-scoped)
+  static String productionTasksListEndpoint(String companyId) => '/api/companies/$companyId/production-tasks';
   static String productionTasksMyTasksEndpoint(String companyId) => '/api/companies/$companyId/production-tasks/my-tasks';
   static String productionTaskByIdEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId';
 
@@ -97,6 +98,9 @@ class ApiConstants {
   static String productionTaskAssignToSelfEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/assign-to-self';
   static String productionTaskReassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/reassign';
   static String productionTaskUnassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/unassign';
+  static String productionTaskUpdateStatusEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/status';
+  static String productionTaskUpdateDueDateEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/due-date';
+  static String productionTaskUpdateProgressEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/update-progress';
 
   // Production task comments
   static String productionTaskCommentsEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/comments';
@@ -124,6 +128,11 @@ class AppConstants {
   static const String refreshTokenKey = 'refresh_token';
   static const String userDataKey = 'user_data';
   static const String settingsKey = 'app_settings';
+  static const String firstNameKey = 'first_name';
+  static const String lastNameKey = 'last_name';
+  static const String emailKey = 'email';
+  static const String phoneNumberKey = 'phone_number';
+  static const String avatarKey = 'avatar';
 
   // Pagination
   static const int defaultPageSize = 50;

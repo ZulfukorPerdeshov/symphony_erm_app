@@ -1319,6 +1319,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reassign => 'Reassign';
 
   @override
+  String get startProgress => 'Start Progress';
+
+  @override
+  String get changeDueDate => 'Change Due Date';
+
+  @override
+  String get changeProgress => 'Change Progress';
+
+  @override
+  String get statusUpdated => 'Status updated successfully';
+
+  @override
+  String get dueDateUpdated => 'Due date updated successfully';
+
+  @override
+  String get invalidProgressValue =>
+      'Please enter a valid progress value (0-100)';
+
+  @override
   String get taskAssignedToYou => 'Task assigned to you';
 
   @override
@@ -1360,6 +1379,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comment => 'Comment';
+
+  @override
+  String get writeComment => 'Write a comment...';
 
   @override
   String get enterYourComment => 'Enter your comment';
@@ -1451,4 +1473,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOpeningFile => 'Error opening file';
+
+  @override
+  String get companyTasks => 'Company Tasks';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get showOverdueOnly => 'Show Overdue Only';
+
+  @override
+  String get applyFilters => 'Apply Filters';
+
+  @override
+  String get sortBy => 'Sort By';
+
+  @override
+  String get createdDate => 'Created Date';
+
+  @override
+  String get descending => 'Descending';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get myResults => 'My Results';
+
+  @override
+  String get viewYourPerformance => 'View your performance';
+
+  @override
+  String get finances => 'Finances';
+
+  @override
+  String get manageYourFinances => 'Manage your finances';
+
+  @override
+  String get appPreferences => 'App preferences';
+
+  @override
+  String get support => 'Support';
+
+  @override
+  String get getHelpAndSupport => 'Get help and support';
+
+  @override
+  String get chat => 'Chat';
+
+  @override
+  String get messageAndSupport => 'Message and support';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get viewCompanyTasks => 'View Company Tasks';
+
+  @override
+  String get notSet => 'Not Set';
+
+  @override
+  String get assignee => 'Assignee';
+
+  @override
+  String get unassigned => 'Unassigned';
+
+  @override
+  String get editTask => 'Edit Task';
+
+  @override
+  String get markAsComplete => 'Mark as Complete';
+
+  @override
+  String get uploadFile => 'Upload File';
+
+  @override
+  String get progressUpdated => 'Progress updated successfully';
+
+  @override
+  String get reason => 'Reason';
 }

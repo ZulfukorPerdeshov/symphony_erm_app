@@ -700,6 +700,34 @@ class InventoryService {
   }
 
   // Production Tasks Operations
+
+  /// Get production tasks with filtering and pagination
+  static Future<List<MyProductionTaskDto>> getProductionTasks(
+    String companyId,
+    ProductionTaskListRequest request,
+  ) async {
+    try {
+      final response = await ApiService.get<Map<String, dynamic>>(
+        ApiConstants.productionServiceBaseUrl,
+        ApiConstants.productionTasksListEndpoint(companyId),
+        queryParameters: request.toJson(),
+      );
+
+      // Check if response has the wrapped structure
+      if (response.containsKey('data')) {
+        final data = response['data'] as List<dynamic>;
+        return data.map((json) => MyProductionTaskDto.fromJson(json)).toList();
+      } else {
+        // Fallback for direct response
+        final data = response as List<dynamic>;
+        return data.map((json) => MyProductionTaskDto.fromJson(json)).toList();
+      }
+    } catch (e) {
+      print('Production tasks endpoint error: $e');
+      return [];
+    }
+  }
+
   static Future<List<MyProductionTaskDto>> getMyProductionTasks(String companyId) async {
     try {
       final response = await ApiService.get<Map<String, dynamic>>(
@@ -982,6 +1010,48 @@ class InventoryService {
       return MyProductionTaskDto.fromJson(response['data']);
     } else {
       // Fallback for direct response
+      return MyProductionTaskDto.fromJson(response);
+    }
+  }
+
+  static Future<MyProductionTaskDto> updateTaskStatus(String companyId, UpdateTaskStatusRequest request) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskUpdateStatusEndpoint(companyId, request.taskId),
+      data: request.toJson(),
+    );
+
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
+      return MyProductionTaskDto.fromJson(response);
+    }
+  }
+
+  static Future<MyProductionTaskDto> updateTaskDueDate(String companyId, UpdateTaskDueDateRequest request) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskUpdateDueDateEndpoint(companyId, request.taskId),
+      data: request.toJson(),
+    );
+
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
+      return MyProductionTaskDto.fromJson(response);
+    }
+  }
+
+  static Future<MyProductionTaskDto> updateTaskProgress(String companyId, UpdateTaskProgressRequest request) async {
+    final response = await ApiService.post<Map<String, dynamic>>(
+      ApiConstants.productionServiceBaseUrl,
+      ApiConstants.productionTaskUpdateProgressEndpoint(companyId, request.taskId),
+      data: request.toJson(),
+    );
+
+    if (response.containsKey('data')) {
+      return MyProductionTaskDto.fromJson(response['data']);
+    } else {
       return MyProductionTaskDto.fromJson(response);
     }
   }

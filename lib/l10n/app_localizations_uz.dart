@@ -295,7 +295,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get low => 'Past';
 
   @override
-  String get medium => 'O\'rta';
+  String get medium => 'O\'rtacha';
 
   @override
   String get high => 'Yuqori';
@@ -1339,6 +1339,25 @@ class AppLocalizationsUz extends AppLocalizations {
   String get reassign => 'Qayta tayinlash';
 
   @override
+  String get startProgress => 'Bajarishni boshlash';
+
+  @override
+  String get changeDueDate => 'Muddatni o\'zgartirish';
+
+  @override
+  String get changeProgress => 'Progressni o\'zgartirish';
+
+  @override
+  String get statusUpdated => 'Status muvaffaqiyatli yangilandi';
+
+  @override
+  String get dueDateUpdated => 'Muddat muvaffaqiyatli yangilandi';
+
+  @override
+  String get invalidProgressValue =>
+      'To\'g\'ri progress qiymatini kiriting (0-100)';
+
+  @override
   String get taskAssignedToYou => 'Vazifa sizga tayinlandi';
 
   @override
@@ -1380,6 +1399,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get comment => 'Izoh';
+
+  @override
+  String get writeComment => 'Izoh yozing...';
 
   @override
   String get enterYourComment => 'Izohingizni kiriting';
@@ -1473,4 +1495,91 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get errorOpeningFile => 'Faylni ochishda xato';
+
+  @override
+  String get companyTasks => 'Kompaniya vazifalari';
+
+  @override
+  String get filters => 'Filtrlar';
+
+  @override
+  String get clearAll => 'Hammasini tozalash';
+
+  @override
+  String get showOverdueOnly => 'Faqat muddati o\'tganlarni ko\'rsatish';
+
+  @override
+  String get applyFilters => 'Filtrlarni qo\'llash';
+
+  @override
+  String get sortBy => 'Saralash turi';
+
+  @override
+  String get createdDate => 'Yaratilgan sana';
+
+  @override
+  String get descending => 'Kamayish bo\'yicha';
+
+  @override
+  String get apply => 'Qo\'llash';
+
+  @override
+  String get myResults => 'Mening natijalarim';
+
+  @override
+  String get viewYourPerformance => 'Natijalaringizni ko\'rish';
+
+  @override
+  String get finances => 'Moliya';
+
+  @override
+  String get manageYourFinances => 'Moliyani boshqarish';
+
+  @override
+  String get appPreferences => 'Ilova sozlamalari';
+
+  @override
+  String get support => 'Qo\'llab-quvvatlash';
+
+  @override
+  String get getHelpAndSupport => 'Yordam va qo\'llab-quvvatlash';
+
+  @override
+  String get chat => 'Chat';
+
+  @override
+  String get messageAndSupport => 'Xabarlar va qo\'llab-quvvatlash';
+
+  @override
+  String get user => 'Foydalanuvchi';
+
+  @override
+  String get comingSoon => 'Tez orada';
+
+  @override
+  String get viewCompanyTasks => 'Kompaniya vazifalarini ko\'rish';
+
+  @override
+  String get notSet => 'O\'rnatilmagan';
+
+  @override
+  String get assignee => 'Ijrochi';
+
+  @override
+  String get unassigned => 'Tayinlanmagan';
+
+  @override
+  String get editTask => 'Vazifani tahrirlash';
+
+  @override
+  String get markAsComplete => 'Bajarilgan deb belgilash';
+
+  @override
+  String get uploadFile => 'Fayl yuklash';
+
+  @override
+  String get progressUpdated => 'Taraqqiyot muvaffaqiyatli yangilandi';
+
+  @override
+  String get reason => 'Sabab';
 }
