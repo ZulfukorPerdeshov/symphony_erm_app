@@ -96,11 +96,11 @@ class ApiConstants {
   static String productionTaskCancelEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/cancel';
   static String productionTaskProgressEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/progress';
   static String productionTaskAssignToSelfEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/assign-to-self';
-  static String productionTaskReassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/reassign';
+  static String productionTaskReassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/assign';
   static String productionTaskUnassignEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/unassign';
   static String productionTaskUpdateStatusEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/status';
   static String productionTaskUpdateDueDateEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/due-date';
-  static String productionTaskUpdateProgressEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/update-progress';
+  static String productionTaskUpdateProgressEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/progress';
 
   // Production task comments
   static String productionTaskCommentsEndpoint(String companyId, String taskId) => '/api/companies/$companyId/production-tasks/$taskId/comments';

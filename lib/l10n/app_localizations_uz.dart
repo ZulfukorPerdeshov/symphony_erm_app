@@ -304,6 +304,21 @@ class AppLocalizationsUz extends AppLocalizations {
   String get urgent => 'Shoshilinch';
 
   @override
+  String get plannedPeriod => 'Planned Period';
+
+  @override
+  String get actualPeriod => 'Actual Period';
+
+  @override
+  String get product => 'Product';
+
+  @override
+  String get productionBatch => 'Production Batch';
+
+  @override
+  String get units => 'units';
+
+  @override
   String get firstName => 'Ism';
 
   @override

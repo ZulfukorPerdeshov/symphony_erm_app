@@ -377,9 +377,7 @@ class MyProductionTaskDto {
   final String description;
   final int status;
   final int priority;
-  final String? assignedToRoleId;
   final String? assignedToUserId;
-  final String? assignedToRoleName;
   final String? assignedToUserName;
   final DateTime? plannedStartDate;
   final DateTime? plannedEndDate;
@@ -397,6 +395,9 @@ class MyProductionTaskDto {
   final bool isOverdue;
   final String? duration;
   final String? productionStageName;
+  final ProductionStageBasicDto? productionStage;
+  final ProductionBatchBasicDto? productionBatch;
+  final ProductBasicDto? product;
 
   MyProductionTaskDto({
     required this.id,
@@ -406,9 +407,7 @@ class MyProductionTaskDto {
     required this.description,
     required this.status,
     required this.priority,
-    this.assignedToRoleId,
     this.assignedToUserId,
-    this.assignedToRoleName,
     this.assignedToUserName,
     this.plannedStartDate,
     this.plannedEndDate,
@@ -426,6 +425,9 @@ class MyProductionTaskDto {
     required this.isOverdue,
     this.duration,
     this.productionStageName,
+    this.productionStage,
+    this.productionBatch,
+    this.product,
   });
 
   factory MyProductionTaskDto.fromJson(Map<String, dynamic> json) {
@@ -434,12 +436,10 @@ class MyProductionTaskDto {
       companyId: json['companyId'],
       productionStageId: json['productionStageId'],
       name: json['name'],
-      description: json['description'],
-      status: json['status'],
-      priority: json['priority'],
-      assignedToRoleId: json['assignedToRoleId'],
+      description: json['description'] ?? '',
+      status: (json['status'] as num).toInt(),
+      priority: (json['priority'] as num).toInt(),
       assignedToUserId: json['assignedToUserId'],
-      assignedToRoleName: json['assignedToRoleName'],
       assignedToUserName: json['assignedToUserName'],
       plannedStartDate: json['plannedStartDate'] != null
           ? DateTime.parse(json['plannedStartDate'])
@@ -455,7 +455,7 @@ class MyProductionTaskDto {
           : null,
       estimatedHours: (json['estimatedHours'] ?? 0).toDouble(),
       actualHours: json['actualHours'] != null ? (json['actualHours'] as num).toDouble() : null,
-      progressPercentage: json['progressPercentage'] ?? 0,
+      progressPercentage: ((json['progressPercentage'] ?? 0) as num).toInt(),
       notes: json['notes'],
       createdBy: json['createdBy'],
       createdAt: DateTime.parse(json['createdAt']),
@@ -469,6 +469,15 @@ class MyProductionTaskDto {
       isOverdue: json['isOverdue'] ?? false,
       duration: json['duration'],
       productionStageName: json['productionStageName'],
+      productionStage: json['productionStage'] != null
+          ? ProductionStageBasicDto.fromJson(json['productionStage'])
+          : null,
+      productionBatch: json['productionBatch'] != null
+          ? ProductionBatchBasicDto.fromJson(json['productionBatch'])
+          : null,
+      product: json['product'] != null
+          ? ProductBasicDto.fromJson(json['product'])
+          : null,
     );
   }
 
@@ -481,9 +490,7 @@ class MyProductionTaskDto {
       'description': description,
       'status': status,
       'priority': priority,
-      'assignedToRoleId': assignedToRoleId,
       'assignedToUserId': assignedToUserId,
-      'assignedToRoleName': assignedToRoleName,
       'assignedToUserName': assignedToUserName,
       'plannedStartDate': plannedStartDate?.toIso8601String(),
       'plannedEndDate': plannedEndDate?.toIso8601String(),
@@ -500,6 +507,10 @@ class MyProductionTaskDto {
       'attachments': attachments.map((e) => e.toJson()).toList(),
       'isOverdue': isOverdue,
       'duration': duration,
+      'productionStageName': productionStageName,
+      'productionStage': productionStage?.toJson(),
+      'productionBatch': productionBatch?.toJson(),
+      'product': product?.toJson(),
     };
   }
 
@@ -510,11 +521,11 @@ class MyProductionTaskDto {
       case 1:
         return 'In Progress';
       case 2:
-        return 'On Hold';
-      case 3:
         return 'Completed';
-      case 4:
+      case 3:
         return 'Cancelled';
+      case 4:
+        return 'On Hold';
       default:
         return 'Unknown';
     }
@@ -660,6 +671,153 @@ class ProductionTaskAttachmentDto {
   }
 }
 
+// Nested DTOs for Production Task
+class ProductionStageBasicDto {
+  final String id;
+  final String name;
+  final String description;
+  final int orderSequence;
+  final int status;
+  final DateTime? plannedStartDate;
+  final DateTime? plannedEndDate;
+  final DateTime? actualStartDate;
+  final DateTime? actualEndDate;
+
+  ProductionStageBasicDto({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.orderSequence,
+    required this.status,
+    this.plannedStartDate,
+    this.plannedEndDate,
+    this.actualStartDate,
+    this.actualEndDate,
+  });
+
+  factory ProductionStageBasicDto.fromJson(Map<String, dynamic> json) {
+    return ProductionStageBasicDto(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'] ?? '',
+      orderSequence: (json['orderSequence'] as num).toInt(),
+      status: (json['status'] as num).toInt(),
+      plannedStartDate: json['plannedStartDate'] != null
+          ? DateTime.parse(json['plannedStartDate'])
+          : null,
+      plannedEndDate: json['plannedEndDate'] != null
+          ? DateTime.parse(json['plannedEndDate'])
+          : null,
+      actualStartDate: json['actualStartDate'] != null
+          ? DateTime.parse(json['actualStartDate'])
+          : null,
+      actualEndDate: json['actualEndDate'] != null
+          ? DateTime.parse(json['actualEndDate'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'orderSequence': orderSequence,
+      'status': status,
+      'plannedStartDate': plannedStartDate?.toIso8601String(),
+      'plannedEndDate': plannedEndDate?.toIso8601String(),
+      'actualStartDate': actualStartDate?.toIso8601String(),
+      'actualEndDate': actualEndDate?.toIso8601String(),
+    };
+  }
+}
+
+class ProductionBatchBasicDto {
+  final String id;
+  final String batchNumber;
+  final int plannedQuantity;
+  final int? actualQuantity;
+  final int status;
+  final DateTime? plannedStartDate;
+  final DateTime? actualStartDate;
+  final DateTime? actualEndDate;
+
+  ProductionBatchBasicDto({
+    required this.id,
+    required this.batchNumber,
+    required this.plannedQuantity,
+    this.actualQuantity,
+    required this.status,
+    this.plannedStartDate,
+    this.actualStartDate,
+    this.actualEndDate,
+  });
+
+  factory ProductionBatchBasicDto.fromJson(Map<String, dynamic> json) {
+    return ProductionBatchBasicDto(
+      id: json['id'],
+      batchNumber: json['batchNumber'],
+      plannedQuantity: (json['plannedQuantity'] as num).toInt(),
+      actualQuantity: json['actualQuantity'] != null ? (json['actualQuantity'] as num).toInt() : null,
+      status: (json['status'] as num).toInt(),
+      plannedStartDate: json['plannedStartDate'] != null
+          ? DateTime.parse(json['plannedStartDate'])
+          : null,
+      actualStartDate: json['actualStartDate'] != null
+          ? DateTime.parse(json['actualStartDate'])
+          : null,
+      actualEndDate: json['actualEndDate'] != null
+          ? DateTime.parse(json['actualEndDate'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'batchNumber': batchNumber,
+      'plannedQuantity': plannedQuantity,
+      'actualQuantity': actualQuantity,
+      'status': status,
+      'plannedStartDate': plannedStartDate?.toIso8601String(),
+      'actualStartDate': actualStartDate?.toIso8601String(),
+      'actualEndDate': actualEndDate?.toIso8601String(),
+    };
+  }
+}
+
+class ProductBasicDto {
+  final String id;
+  final String name;
+  final String? sku;
+  final String? barcode;
+
+  ProductBasicDto({
+    required this.id,
+    required this.name,
+    this.sku,
+    this.barcode,
+  });
+
+  factory ProductBasicDto.fromJson(Map<String, dynamic> json) {
+    return ProductBasicDto(
+      id: json['id'],
+      name: json['name'],
+      sku: json['sku'],
+      barcode: json['barcode'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'sku': sku,
+      'barcode': barcode,
+    };
+  }
+}
+
 // Request DTOs for Production Task Management
 class StartTaskRequest {
   final DateTime startDate;
@@ -727,31 +885,46 @@ class UpdateTaskProgressRequest {
 class UpdateTaskStatusRequest {
   final String taskId;
   final int status;
+  final String? notes;
 
   UpdateTaskStatusRequest({
     required this.taskId,
     required this.status,
+    this.notes,
   });
 
   Map<String, dynamic> toJson() => {
-        'taskId': taskId,
         'status': status,
+        if (notes != null) 'notes': notes,
       };
 }
 
 class UpdateTaskDueDateRequest {
   final String taskId;
-  final DateTime plannedEndDate;
+  final DateTime? plannedStartDate;
+  final DateTime? plannedEndDate;
+  final String? notes;
 
   UpdateTaskDueDateRequest({
     required this.taskId,
-    required this.plannedEndDate,
+    this.plannedStartDate,
+    this.plannedEndDate,
+    this.notes,
   });
 
-  Map<String, dynamic> toJson() => {
-        'taskId': taskId,
-        'plannedEndDate': plannedEndDate.toIso8601String(),
-      };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (plannedStartDate != null) {
+      map['plannedStartDate'] = plannedStartDate!.toIso8601String();
+    }
+    if (plannedEndDate != null) {
+      map['plannedEndDate'] = plannedEndDate!.toIso8601String();
+    }
+    if (notes != null) {
+      map['notes'] = notes;
+    }
+    return map;
+  }
 }
 
 class CreateProductionTaskCommentRequest {
@@ -794,17 +967,14 @@ class CreateProductionTaskAttachmentRequest {
 }
 
 class ReassignTaskRequest {
-  final String? userId;
-  final String? roleId;
+  final String? assignedToUserId;
 
   ReassignTaskRequest({
-    this.userId,
-    this.roleId,
+    this.assignedToUserId
   });
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'roleId': roleId,
+        'assignedToUserId': assignedToUserId,
       };
 }
 

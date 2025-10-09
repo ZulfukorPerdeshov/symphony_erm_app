@@ -28,6 +28,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final FocusNode _commentFocusNode = FocusNode();
   bool _isInternal = false;
   Map<String, String> _userFullNames = {}; // Cache user full names by userId
+  bool _taskWasModified = false; // Track if task was modified
 
   @override
   void initState() {
@@ -54,15 +55,31 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
       if (!mounted) return;
 
-      // Load user full names for comments
-      final userIds = taskDetails.comments
-          .map((comment) => comment.userId)
-          .where((userId) => userId.isNotEmpty && !_userFullNames.containsKey(userId))
-          .toSet()
-          .toList();
+      // Collect user IDs that need full names
+      final userIds = <String>{};
 
+      // Add comment authors
+      for (final comment in taskDetails.comments) {
+        if (comment.userId.isNotEmpty && !_userFullNames.containsKey(comment.userId)) {
+          userIds.add(comment.userId);
+        }
+      }
+
+      // Add assigned user
+      if (taskDetails.assignedToUserId != null &&
+          taskDetails.assignedToUserId!.isNotEmpty &&
+          !_userFullNames.containsKey(taskDetails.assignedToUserId!)) {
+        userIds.add(taskDetails.assignedToUserId!);
+      }
+
+      // Add creator
+      if (taskDetails.createdBy.isNotEmpty && !_userFullNames.containsKey(taskDetails.createdBy)) {
+        userIds.add(taskDetails.createdBy);
+      }
+
+      // Fetch user full names
       if (userIds.isNotEmpty) {
-        final users = await AuthService.getUsersByIds(userIds);
+        final users = await AuthService.getUsersByIds(userIds.toList());
         if (!mounted) return;
 
         for (final user in users) {
@@ -107,7 +124,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context, true),
+          onPressed: () => Navigator.pop(context, _taskWasModified),
         ),
         title: Text(
           _task!.name.length > 30 ? '${_task!.name.substring(0, 30)}...' : _task!.name,
@@ -130,38 +147,202 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Project Badge
+                  // Production Context Info
                   Container(
                     color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF00D4AA),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Z',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                        // Product Info
+                        if (_task!.product != null) ...[
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.inventory_2_outlined,
+                                  color: Color(0xFF6366F1),
+                                  size: 20,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.product,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _task!.product!.name,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    if (_task!.product!.sku != null) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'SKU: ${_task!.product!.sku}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _task!.productionStageName ?? 'Project',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(height: 12),
+                          Divider(height: 1, color: Colors.grey[200]),
+                          const SizedBox(height: 12),
+                        ],
+
+                        // Production Batch Info
+                        if (_task!.productionBatch != null) ...[
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF10B981).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.widgets_outlined,
+                                  color: Color(0xFF10B981),
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.productionBatch,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _task!.productionBatch!.batchNumber,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${l10n.quantity}: ${_task!.productionBatch!.plannedQuantity} ${l10n.units}',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          Divider(height: 1, color: Colors.grey[200]),
+                          const SizedBox(height: 12),
+                        ],
+
+                        // Production Stage Info
+                        if (_task!.productionStage != null) ...[
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF59E0B).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.account_tree_outlined,
+                                  color: Color(0xFFF59E0B),
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.productionStage,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _task!.productionStage!.name,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    if (_task!.productionStage!.description.isNotEmpty) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _task!.productionStage!.description,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[600],
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF59E0B).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFFF59E0B),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  '#${_task!.productionStage!.orderSequence}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFF59E0B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -259,7 +440,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     child: Column(
                       children: [
                         _buildMetadataRow(
-                          label: l10n.state,
+                          label: l10n.status,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                             decoration: BoxDecoration(
@@ -341,7 +522,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                   radius: 10,
                                   backgroundColor: const Color(AppColors.primaryIndigo),
                                   child: Text(
-                                    _getInitials(_task!.assignedToUserName),
+                                    _getInitials(
+                                      _task!.assignedToUserId != null
+                                          ? _userFullNames[_task!.assignedToUserId!] ?? _task!.assignedToUserName
+                                          : null,
+                                    ),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 9,
@@ -351,7 +536,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  _task!.assignedToUserName ?? l10n.unassigned,
+                                  _task!.assignedToUserId != null
+                                      ? _userFullNames[_task!.assignedToUserId!] ?? _task!.assignedToUserName ?? l10n.unassigned
+                                      : l10n.unassigned,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 10,
@@ -362,7 +549,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             ),
                           ),
                         ),
-                        if (_task!.createdBy != null) ...[
+                        if (_task!.createdBy.isNotEmpty) ...[
                           const Divider(height: 24),
                           _buildMetadataRow(
                             label: l10n.createdBy,
@@ -386,11 +573,117 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    _userFullNames[_task!.createdBy!] ?? l10n.unknown,
+                                    _userFullNames[_task!.createdBy] ?? l10n.unknown,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 10,
                                       color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                        const Divider(height: 24),
+                        _buildMetadataRow(
+                          label: l10n.priority,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: _getPriorityColor(_task!.priority).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: _getPriorityColor(_task!.priority),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.flag,
+                                  size: 10,
+                                  color: _getPriorityColor(_task!.priority),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _task!.priorityDisplay,
+                                  style: TextStyle(
+                                    color: _getPriorityColor(_task!.priority),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (_task!.plannedStartDate != null || _task!.plannedEndDate != null) ...[
+                          const Divider(height: 24),
+                          _buildMetadataRow(
+                            label: l10n.plannedPeriod,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4A9DEC).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF4A9DEC),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.event_available,
+                                    size: 10,
+                                    color: Color(0xFF4A9DEC),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _formatDateRange(_task!.plannedStartDate, _task!.plannedEndDate),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                      color: Color(0xFF4A9DEC),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (_task!.actualStartDate != null || _task!.actualEndDate != null) ...[
+                          const Divider(height: 24),
+                          _buildMetadataRow(
+                            label: l10n.actualPeriod,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF66BB6A).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF66BB6A),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.event_note,
+                                    size: 10,
+                                    color: Color(0xFF66BB6A),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _formatDateRange(_task!.actualStartDate, _task!.actualEndDate),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                      color: Color(0xFF66BB6A),
                                     ),
                                   ),
                                 ],
@@ -413,11 +706,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       children: [
                         // Start/Complete
                         _buildCircleActionButton(
-                          icon: _task!.status == 3
+                          icon: _task!.status == 2
                               ? Icons.check_circle
                               : (_task!.status == 0 ? Icons.play_arrow : Icons.check_circle_outline),
-                          color: _task!.status == 3 ? const Color(AppColors.success) : const Color(AppColors.primaryIndigo),
-                          onTap: _task!.status == 3 ? null : () {
+                          color: _task!.status == 2 ? const Color(AppColors.success) : const Color(AppColors.primaryIndigo),
+                          onTap: _task!.status == 2 ? null : () {
                             if (_task!.status == 0) {
                               _updateTaskStatus(1); // Start progress
                             } else {
@@ -435,7 +728,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         _buildCircleActionButton(
                           icon: Icons.arrow_back,
                           color: const Color(AppColors.warning),
-                          onTap: () => _updateTaskStatus(2), // On Hold
+                          onTap: () => _unassignTask(), // On Hold
                         ),
                         // Assign to Me
                         _buildCircleActionButton(
@@ -692,7 +985,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: _addComment,
+                                    onTap: _addCommentDirectly,
                                     customBorder: const CircleBorder(),
                                     child: Container(
                                       width: 48,
@@ -1108,12 +1401,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         return Colors.grey;
       case 1: // In Progress
         return const Color(0xFF4A9DEC);
-      case 2: // On Hold
-        return const Color(0xFFFFA726);
-      case 3: // Completed
+      case 2: // Completed
         return const Color(0xFF66BB6A);
-      case 4: // Cancelled
+      case 3: // Cancelled
         return const Color(0xFFEF5350);
+      case 4: // On Hold
+        return const Color(0xFFFFA726);
       default:
         return Colors.grey;
     }
@@ -1179,6 +1472,33 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
+  Color _getPriorityColor(int priority) {
+    switch (priority) {
+      case 0: // Low
+        return const Color(0xFF66BB6A); // Green
+      case 1: // Medium
+        return const Color(0xFF4A9DEC); // Blue
+      case 2: // High
+        return const Color(0xFFFFA726); // Orange
+      case 3: // Urgent
+        return const Color(0xFFEF5350); // Red
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatDateRange(DateTime? startDate, DateTime? endDate) {
+    if (startDate != null && endDate != null) {
+      return '${_formatDate(startDate)} - ${_formatDate(endDate)}';
+    } else if (startDate != null) {
+      return 'From ${_formatDate(startDate)}';
+    } else if (endDate != null) {
+      return 'Until ${_formatDate(endDate)}';
+    } else {
+      return 'Not set';
+    }
+  }
+
   void _showMoreOptions(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -1234,7 +1554,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l10n.addComment),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1258,11 +1578,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           FilledButton(
-            onPressed: () => _addComment(),
+            onPressed: () => _addComment(dialogContext),
             child: Text(l10n.add),
           ),
         ],
@@ -1270,7 +1590,40 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Future<void> _addComment() async {
+  Future<void> _addCommentDirectly() async {
+    if (_commentController.text.trim().isEmpty) return;
+
+    try {
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      await InventoryService.addProductionTaskComment(
+        companyId,
+        _task!.id,
+        CreateProductionTaskCommentRequest(
+          comment: _commentController.text.trim(),
+          isInternal: false,
+        ),
+      );
+
+      _commentController.clear();
+
+      // Reload task details to show new comment
+      await _loadTaskDetails();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.commentAdded)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingData}: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addComment(BuildContext dialogContext) async {
     if (_commentController.text.trim().isEmpty) return;
 
     try {
@@ -1287,14 +1640,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _commentController.clear();
       setState(() => _isInternal = false);
 
+      // Close the dialog
       if (mounted) {
-        Navigator.pop(context);
-        await _loadTaskDetails();
+        Navigator.pop(dialogContext);
+      }
+
+      // Reload task details to show new comment
+      await _loadTaskDetails();
+
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.commentAdded)),
         );
       }
     } catch (e) {
+      // Close the dialog on error too
+      if (mounted) {
+        Navigator.pop(dialogContext);
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingData}: $e')),
@@ -1524,7 +1888,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           Flexible(
                             child: Text(
                               user.email != null && user.email!.isNotEmpty
-                                  ? '${user.fullName} (${user.email})'
+                                  ? '${user.fullName} (${user.phoneNumber})'
                                   : user.fullName,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1572,9 +1936,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       await InventoryService.reassignTask(
         companyId,
         _task!.id,
-        ReassignTaskRequest(userId: userId),
+        ReassignTaskRequest(assignedToUserId: userId),
       );
 
+      _taskWasModified = true;
       await _loadTaskDetails();
 
       if (mounted) {
@@ -1690,6 +2055,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         request,
       );
 
+      _taskWasModified = true;
       await _loadTaskDetails();
 
       if (mounted) {
@@ -1714,13 +2080,38 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     try {
       final request = ReassignTaskRequest(
-        userId: currentUser.id,
+        assignedToUserId: currentUser.id,
       );
 
       await InventoryService.reassignTask(
         CompanyService.getCurrentCompanyIdOrThrow(),
         widget.task.id,
         request,
+      );
+
+      _taskWasModified = true;
+      await _loadTaskDetails();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.taskReassigned)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.errorReassigningTask}: $e')),
+        );
+      }
+    }
+  }
+
+Future<void> _unassignTask() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await InventoryService.unassignTask(
+        CompanyService.getCurrentCompanyIdOrThrow(),
+        widget.task.id
       );
 
       await _loadTaskDetails();
@@ -1733,7 +2124,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.errorReassigningTask}: $e')),
+          SnackBar(content: Text('${l10n.errorAssigningTask}: $e')),
         );
       }
     }
@@ -1762,6 +2153,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         request,
       );
 
+      _taskWasModified = true;
       await _loadTaskDetails();
 
       if (mounted) {
@@ -1780,50 +2172,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Future<void> _showChangeProgressDialog() async {
     final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: _task!.progressPercentage.toString());
 
     final result = await showDialog<int>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.changeProgress),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.progressPercentage,
-                hintText: '0-100',
-                border: const OutlineInputBorder(),
-                suffixText: '%',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final value = int.tryParse(controller.text);
-              if (value != null && value >= 0 && value <= 100) {
-                Navigator.pop(context, value);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.invalidProgressValue)),
-                );
-              }
-            },
-            child: Text(l10n.save),
-          ),
-        ],
+      builder: (context) => _ChangeProgressDialog(
+        initialProgress: _task!.progressPercentage,
+        l10n: l10n,
       ),
     );
-
-    controller.dispose();
 
     if (result == null || !mounted) return;
 
@@ -1838,6 +2194,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         request,
       );
 
+      _taskWasModified = true;
       await _loadTaskDetails();
 
       if (mounted) {
@@ -1852,5 +2209,75 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         );
       }
     }
+  }
+}
+
+class _ChangeProgressDialog extends StatefulWidget {
+  final int initialProgress;
+  final AppLocalizations l10n;
+
+  const _ChangeProgressDialog({
+    required this.initialProgress,
+    required this.l10n,
+  });
+
+  @override
+  State<_ChangeProgressDialog> createState() => _ChangeProgressDialogState();
+}
+
+class _ChangeProgressDialogState extends State<_ChangeProgressDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialProgress.toString());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.l10n.changeProgress),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: widget.l10n.progressPercentage,
+              hintText: '0-100',
+              border: const OutlineInputBorder(),
+              suffixText: '%',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(widget.l10n.cancel),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final value = int.tryParse(_controller.text);
+            if (value != null && value >= 0 && value <= 100) {
+              Navigator.pop(context, value);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(widget.l10n.invalidProgressValue)),
+              );
+            }
+          },
+          child: Text(widget.l10n.save),
+        ),
+      ],
+    );
   }
 }

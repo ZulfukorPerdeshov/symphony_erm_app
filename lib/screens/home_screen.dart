@@ -715,12 +715,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return priority >= 2 ? const Color(AppColors.warning) : Colors.grey;
       case 1: // In Progress
         return const Color(AppColors.info);
-      case 2: // On Hold
-        return const Color(AppColors.warning);
-      case 3: // Completed
+      case 2: // Completed
         return const Color(AppColors.success);
-      case 4: // Cancelled
+      case 3: // Cancelled
         return const Color(AppColors.error);
+      case 4: // On Hold
+        return const Color(AppColors.warning);
       default:
         return Colors.grey;
     }
@@ -732,12 +732,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Icons.play_circle_outline;
       case 1: // In Progress
         return Icons.hourglass_bottom;
-      case 2: // On Hold
-        return Icons.pause_circle_outline;
-      case 3: // Completed
+      case 2: // Completed
         return Icons.check_circle_outline;
-      case 4: // Cancelled
+      case 3: // Cancelled
         return Icons.cancel_outlined;
+      case 4: // On Hold
+        return Icons.pause_circle_outline;
       default:
         return Icons.task_outlined;
     }

@@ -303,6 +303,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get urgent => 'Urgent';
 
   @override
+  String get plannedPeriod => 'Planned Period';
+
+  @override
+  String get actualPeriod => 'Actual Period';
+
+  @override
+  String get product => 'Product';
+
+  @override
+  String get productionBatch => 'Production Batch';
+
+  @override
+  String get units => 'units';
+
+  @override
   String get firstName => 'First Name';
 
   @override

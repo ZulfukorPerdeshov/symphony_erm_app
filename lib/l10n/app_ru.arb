@@ -107,6 +107,14 @@
   "high": "Высокий",
   "urgent": "Срочный",
 
+  "plannedPeriod": "Плановый период",
+  "actualPeriod": "Фактический период",
+
+  "product": "Продукт",
+  "productionBatch": "Производственная партия",
+  "productionStage": "Стадия производства",
+  "units": "шт",
+
   "firstName": "Имя",
   "lastName": "Фамилия",
   "fullName": "Полное имя",

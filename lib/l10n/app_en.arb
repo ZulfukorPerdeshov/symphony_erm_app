@@ -107,6 +107,14 @@
   "high": "High",
   "urgent": "Urgent",
 
+  "plannedPeriod": "Planned Period",
+  "actualPeriod": "Actual Period",
+
+  "product": "Product",
+  "productionBatch": "Production Batch",
+  "productionStage": "Production Stage",
+  "units": "units",
+
   "firstName": "First Name",
   "lastName": "Last Name",
   "fullName": "Full Name",

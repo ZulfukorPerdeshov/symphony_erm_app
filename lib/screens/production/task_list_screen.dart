@@ -390,6 +390,101 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   const Icon(Icons.chevron_right, color: Colors.grey),
                 ],
               ),
+
+              // Production Context Info
+              if (task.product != null || task.productionBatch != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Product Info
+                      if (task.product != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                task.product!.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      // Production Batch Info
+                      if (task.productionBatch != null) ...[
+                        if (task.product != null) const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.widgets_outlined,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      task.productionBatch!.batchNumber,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey[700],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF10B981).withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: const Color(0xFF10B981).withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '${task.productionBatch!.plannedQuantity} ${AppLocalizations.of(context)!.units}',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF10B981),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
@@ -482,12 +577,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
         return priority >= 2 ? const Color(AppColors.warning) : Colors.grey;
       case 1: // In Progress
         return const Color(AppColors.info);
-      case 2: // On Hold
-        return const Color(AppColors.warning);
-      case 3: // Completed
+      case 2: // Completed
         return const Color(AppColors.success);
-      case 4: // Cancelled
+      case 3: // Cancelled
         return const Color(AppColors.error);
+      case 4: // On Hold
+        return const Color(AppColors.warning);
       default:
         return Colors.grey;
     }
@@ -514,12 +609,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
         return Icons.play_circle_outline;
       case 1: // In Progress
         return Icons.hourglass_bottom;
-      case 2: // On Hold
-        return Icons.pause_circle_outline;
-      case 3: // Completed
+      case 2: // Completed
         return Icons.check_circle_outline;
-      case 4: // Cancelled
+      case 3: // Cancelled
         return Icons.cancel_outlined;
+      case 4: // On Hold
+        return Icons.pause_circle_outline;
       default:
         return Icons.task_outlined;
     }

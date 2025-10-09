@@ -225,7 +225,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get productionOrder => 'Производственный заказ';
 
   @override
-  String get productionStage => 'Этап производства';
+  String get productionStage => 'Стадия производства';
 
   @override
   String get productionTask => 'Производственная задача';
@@ -301,6 +301,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get urgent => 'Срочный';
+
+  @override
+  String get plannedPeriod => 'Плановый период';
+
+  @override
+  String get actualPeriod => 'Фактический период';
+
+  @override
+  String get product => 'Продукт';
+
+  @override
+  String get productionBatch => 'Производственная партия';
+
+  @override
+  String get units => 'шт';
 
   @override
   String get firstName => 'Имя';

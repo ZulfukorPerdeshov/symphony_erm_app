@@ -688,6 +688,36 @@ abstract class AppLocalizations {
   /// **'Urgent'**
   String get urgent;
 
+  /// No description provided for @plannedPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned Period'**
+  String get plannedPeriod;
+
+  /// No description provided for @actualPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual Period'**
+  String get actualPeriod;
+
+  /// No description provided for @product.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get product;
+
+  /// No description provided for @productionBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Production Batch'**
+  String get productionBatch;
+
+  /// No description provided for @units.
+  ///
+  /// In en, this message translates to:
+  /// **'units'**
+  String get units;
+
   /// No description provided for @firstName.
   ///
   /// In en, this message translates to:

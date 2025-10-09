@@ -1015,7 +1015,7 @@ class InventoryService {
   }
 
   static Future<MyProductionTaskDto> updateTaskStatus(String companyId, UpdateTaskStatusRequest request) async {
-    final response = await ApiService.post<Map<String, dynamic>>(
+    final response = await ApiService.patch<Map<String, dynamic>>(
       ApiConstants.productionServiceBaseUrl,
       ApiConstants.productionTaskUpdateStatusEndpoint(companyId, request.taskId),
       data: request.toJson(),
@@ -1029,7 +1029,7 @@ class InventoryService {
   }
 
   static Future<MyProductionTaskDto> updateTaskDueDate(String companyId, UpdateTaskDueDateRequest request) async {
-    final response = await ApiService.post<Map<String, dynamic>>(
+    final response = await ApiService.patch<Map<String, dynamic>>(
       ApiConstants.productionServiceBaseUrl,
       ApiConstants.productionTaskUpdateDueDateEndpoint(companyId, request.taskId),
       data: request.toJson(),
