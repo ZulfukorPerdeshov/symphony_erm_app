@@ -115,6 +115,8 @@
   "productionStage": "Стадия производства",
   "units": "шт",
 
+  "selectedCompany": "Выбранная компания",
+
   "firstName": "Имя",
   "lastName": "Фамилия",
   "fullName": "Полное имя",

@@ -318,6 +318,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get units => 'шт';
 
   @override
+  String get selectedCompany => 'Выбранная компания';
+
+  @override
   String get firstName => 'Имя';
 
   @override

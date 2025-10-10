@@ -318,6 +318,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get units => 'units';
 
   @override
+  String get selectedCompany => 'Selected Company';
+
+  @override
   String get firstName => 'First Name';
 
   @override

@@ -718,6 +718,12 @@ abstract class AppLocalizations {
   /// **'units'**
   String get units;
 
+  /// No description provided for @selectedCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Company'**
+  String get selectedCompany;
+
   /// No description provided for @firstName.
   ///
   /// In en, this message translates to:

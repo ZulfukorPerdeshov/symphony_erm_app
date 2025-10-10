@@ -115,6 +115,8 @@
   "productionStage": "Production Stage",
   "units": "units",
 
+  "selectedCompany": "Selected Company",
+
   "firstName": "First Name",
   "lastName": "Last Name",
   "fullName": "Full Name",

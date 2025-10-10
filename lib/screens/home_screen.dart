@@ -130,6 +130,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadMyTasks();
   }
 
+  Future<Map<String, dynamic>?> _getCompanyDetails() async {
+    try {
+      final companyId = CompanyService.getCurrentCompanyIdOrThrow();
+      final companies = await CompanyService.getCompaniesList();
+      final company = companies.firstWhere(
+        (c) => c.id == companyId,
+        orElse: () => companies.first,
+      );
+      return {
+        'name': company.name,
+        'logoUrl': '${ApiConstants.companyServiceBaseUrl}${company.logo?.url}',
+      };
+    } catch (e) {
+      // Fallback to getMyCompanyDetails
+      try {
+        return await CompanyService.getMyCompanyDetails();
+      } catch (e) {
+        return {'name': 'Symphony ERP', 'logoUrl': null};
+      }
+    }
+  }
+
   Future<void> _loadMyTasks() async {
     setState(() => _isLoadingTasks = true);
 
@@ -195,72 +217,261 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${_getGreeting()} ${user?.firstName ?? ''}'+'!',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            Text(
-              DateHelper.formatDate(DateTime.now()),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
+      appBar: AppBar(        
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black87),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: Text(
+          '${_getGreeting()}, ${user?.firstName ?? 'User'}!',
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: Colors.black87,
+          ),
         ),
         actions: [
+          // Notification Icon
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
             onPressed: () {
               // TODO: Navigate to notifications
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadMyTasks,
+          // User Avatar
+          Padding(
+            padding: const EdgeInsets.only(right: 12, left: 8),
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to profile or show menu
+              },
+              child: CircleAvatar(
+                radius: 22,
+                backgroundColor: const Color(AppColors.primaryIndigo),
+                backgroundImage: user?.avatarUrl != null
+                    ? NetworkImage('${ApiConstants.identityServiceBaseUrl}${user!.avatarUrl}')
+                    : null,
+                child: user?.avatarUrl == null
+                    ? Text(
+                        user?.initials ?? 'U',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : null,
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-                  // Header with description
-                  Text(
-                    l10n.allActivitiesInOnePlace,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Color(AppColors.primaryIndigo),
-                    ),
+            // Company Logo and Name Section - Modern Design
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF6366F1),
+                    Color(0xFF8B5CF6),
+                    Color(0xFFA855F7),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                    spreadRadius: -5,
                   ),
-            // const SizedBox(height: 8),
-            // Text(
-            //   l10n.theHomeScreenGivesUsers,
-            //   style: theme.textTheme.bodyMedium?.copyWith(
-            //     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            //   ),
-            // ),
-            // const SizedBox(height: 24),
+                ],
+              ),
+              child: FutureBuilder<Map<String, dynamic>?>(
+                future: _getCompanyDetails(),
+                builder: (context, snapshot) {
+                  final companyName = snapshot.data?['name'] ?? 'Symphony ERP';
+                  final companyLogo = snapshot.data?['logoUrl'];
 
-            // // Task Status Tabs
-            // _buildTaskStatusTabs(context),
-            const SizedBox(height: 24),
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Label with icon
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.business_rounded,
+                                size: 14,
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                l10n.selectedCompany.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
 
-            // Quick Stats Cards
-            _buildQuickStatsCards(context),
-            const SizedBox(height: 24),
+                        // Company Logo - Modern circular design
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 10,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: companyLogo == null
+                                  ? const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF6366F1),
+                                        Color(0xFF8B5CF6),
+                                      ],
+                                    )
+                                  : null,
+                            ),
+                            child: companyLogo != null
+                                ? ClipOval(
+                                    child: Image.network(
+                                      companyLogo,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                Color(0xFF6366F1),
+                                                Color(0xFF8B5CF6),
+                                              ],
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              companyName.isNotEmpty ? companyName[0].toUpperCase() : 'S',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      companyName.isNotEmpty ? companyName[0].toUpperCase() : 'S',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
 
-            // Task Overview Chart
-            _buildTaskOverview(context),
-            const SizedBox(height: 24),
+                        const SizedBox(height: 10),
 
-            // In Progress Tasks
-            _buildInProgressTasks(context),
+                        // Company Name with modern typography
+                        Text(
+                          companyName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                            height: 1.2,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Decorative line
+                        Container(
+                          width: 60,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [            
+                  const SizedBox(height: 10),
+
+                  // Quick Stats Cards
+                  _buildQuickStatsCards(context),
+                  const SizedBox(height: 10),
+
+                  // Task Overview Chart
+                  _buildTaskOverview(context),
+                  const SizedBox(height: 10),
+
+                  // In Progress Tasks
+                  _buildInProgressTasks(context),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -883,7 +1094,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: CircleAvatar(
                           radius: 56,
                           backgroundImage: user?.avatarUrl != null
-                              ? NetworkImage('${ApiConstants.identityServiceBaseUrl}/${user!.avatarUrl}!')
+                              ? NetworkImage('${ApiConstants.identityServiceBaseUrl}${user!.avatarUrl}')
                               : null,
                           child: user?.avatarUrl == null
                               ? Text(

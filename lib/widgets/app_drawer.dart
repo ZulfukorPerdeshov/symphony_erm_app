@@ -209,7 +209,7 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
               ),
               child: CircleAvatar(
                 backgroundColor: Colors.white,
-                backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
+                backgroundImage: user?.avatarUrl != null ? NetworkImage('${ApiConstants.identityServiceBaseUrl}${user!.avatarUrl!}') : null,
                 child: user?.avatarUrl == null
                     ? Text(
                         user?.initials ?? '?',

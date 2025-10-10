@@ -319,6 +319,9 @@ class AppLocalizationsUz extends AppLocalizations {
   String get units => 'units';
 
   @override
+  String get selectedCompany => 'Selected Company';
+
+  @override
   String get firstName => 'Ism';
 
   @override
