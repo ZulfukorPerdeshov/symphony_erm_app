@@ -883,7 +883,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: CircleAvatar(
                           radius: 56,
                           backgroundImage: user?.avatarUrl != null
-                              ? NetworkImage(user!.avatarUrl!)
+                              ? NetworkImage('${ApiConstants.identityServiceBaseUrl}/${user!.avatarUrl}!')
                               : null,
                           child: user?.avatarUrl == null
                               ? Text(

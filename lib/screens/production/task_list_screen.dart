@@ -226,12 +226,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   isLabelVisible: _activeFilterCount > 0,
                   label: Text('$_activeFilterCount'),
                   child: IconButton.filled(
-                    icon: const Icon(Icons.filter_list),
+                    icon: const Icon(Icons.filter_alt_outlined),
                     onPressed: _showFilterDialog,
                     style: IconButton.styleFrom(
                       backgroundColor: _activeFilterCount > 0
                           ? const Color(AppColors.primaryIndigo)
-                          : theme.colorScheme.surfaceContainerHighest,
+                          : theme.colorScheme.surfaceContainerLowest,
                       foregroundColor: _activeFilterCount > 0 ? Colors.white : theme.colorScheme.onSurface,
                     ),
                   ),
@@ -239,6 +239,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 const SizedBox(width: 8),
                 IconButton.filled(
                   icon: const Icon(Icons.sort),
+                  color: theme.colorScheme.onSurface,
                   onPressed: _showSortDialog,
                   style: IconButton.styleFrom(
                     backgroundColor: theme.colorScheme.surfaceContainerHighest,
@@ -462,7 +463,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                       color: const Color(0xFF10B981).withOpacity(0.15),
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(
-                                        color: const Color(0xFF10B981).withOpacity(0.3),
+                                        color: const Color.fromARGB(255, 185, 50, 16).withOpacity(0.3),
                                       ),
                                     ),
                                     child: Text(
@@ -836,65 +837,67 @@ class _SortDialogState extends State<_SortDialog> {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.sortBy,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-
-          RadioListTile<String>(
-            title: Text(l10n.createdDate),
-            value: 'CreatedAt',
-            groupValue: _sortBy,
-            onChanged: (value) => setState(() => _sortBy = value!),
-            contentPadding: EdgeInsets.zero,
-          ),
-          RadioListTile<String>(
-            title: Text(l10n.dueDate),
-            value: 'PlannedEndDate',
-            groupValue: _sortBy,
-            onChanged: (value) => setState(() => _sortBy = value!),
-            contentPadding: EdgeInsets.zero,
-          ),
-          RadioListTile<String>(
-            title: Text(l10n.priority),
-            value: 'Priority',
-            groupValue: _sortBy,
-            onChanged: (value) => setState(() => _sortBy = value!),
-            contentPadding: EdgeInsets.zero,
-          ),
-          RadioListTile<String>(
-            title: Text(l10n.progress),
-            value: 'ProgressPercentage',
-            groupValue: _sortBy,
-            onChanged: (value) => setState(() => _sortBy = value!),
-            contentPadding: EdgeInsets.zero,
-          ),
-          const SizedBox(height: 16),
-
-          SwitchListTile(
-            title: Text(l10n.descending),
-            value: _sortDescending,
-            onChanged: (value) => setState(() => _sortDescending = value),
-            contentPadding: EdgeInsets.zero,
-          ),
-          const SizedBox(height: 24),
-
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () {
-                widget.onApply(_sortBy, _sortDescending);
-                Navigator.pop(context);
-              },
-              child: Text(l10n.apply),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.sortBy,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+
+            RadioListTile<String>(
+              title: Text(l10n.createdDate),
+              value: 'CreatedAt',
+              groupValue: _sortBy,
+              onChanged: (value) => setState(() => _sortBy = value!),
+              contentPadding: EdgeInsets.zero,
+            ),
+            RadioListTile<String>(
+              title: Text(l10n.dueDate),
+              value: 'PlannedEndDate',
+              groupValue: _sortBy,
+              onChanged: (value) => setState(() => _sortBy = value!),
+              contentPadding: EdgeInsets.zero,
+            ),
+            RadioListTile<String>(
+              title: Text(l10n.priority),
+              value: 'Priority',
+              groupValue: _sortBy,
+              onChanged: (value) => setState(() => _sortBy = value!),
+              contentPadding: EdgeInsets.zero,
+            ),
+            RadioListTile<String>(
+              title: Text(l10n.progress),
+              value: 'ProgressPercentage',
+              groupValue: _sortBy,
+              onChanged: (value) => setState(() => _sortBy = value!),
+              contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 12),
+
+            SwitchListTile(
+              title: Text(l10n.descending),
+              value: _sortDescending,
+              onChanged: (value) => setState(() => _sortDescending = value),
+              contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  widget.onApply(_sortBy, _sortDescending);
+                  Navigator.pop(context);
+                },
+                child: Text(l10n.apply),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

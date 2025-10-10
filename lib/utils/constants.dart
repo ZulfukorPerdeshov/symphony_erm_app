@@ -224,7 +224,7 @@ class AppStrings {
   static const String orders = 'Orders';
   static const String production = 'Production';
   static const String tasks = 'Tasks';
-  static const String profile = 'Profile';
+  static const String profile = 'User profile';
   static const String notifications = 'Notifications';
   static const String analytics = 'Analytics';
 

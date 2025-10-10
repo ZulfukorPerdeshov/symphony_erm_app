@@ -219,21 +219,23 @@ class _LoginScreenState extends State<LoginScreen> {
     return Card(
       elevation: 0,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.language,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildLanguageOption('en', 'English', appState),
-                _buildLanguageOption('ru', 'Русский', appState),
-                _buildLanguageOption('uz', 'O\'zbek', appState),
+                Flexible(child: _buildLanguageOption('en', 'English', appState)),
+                const SizedBox(width: 4),
+                Flexible(child: _buildLanguageOption('ru', 'Русский', appState)),
+                const SizedBox(width: 4),
+                Flexible(child: _buildLanguageOption('uz', 'O\'zbek', appState)),
               ],
             ),
           ],
@@ -248,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: () => appState.setLocale(Locale(languageCode)),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Theme.of(context).colorScheme.primary : null,
           borderRadius: BorderRadius.circular(20),
@@ -258,13 +260,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 : Theme.of(context).colorScheme.outline,
           ),
         ),
-        child: Text(
-          languageName,
-          style: TextStyle(
-            color: isSelected
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        child: Center(
+          child: Text(
+            languageName,
+            style: TextStyle(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              fontSize: 10,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),

@@ -23,7 +23,7 @@ class UserDto {
         email: json['email'],
         firstName: json['firstName'],
         lastName: json['lastName'],
-        avatarUrl: json['avatarUrl'],
+        avatarUrl: json['avatar'],
         createdAt: DateTime.parse(json['createdAt']),
       );
 
