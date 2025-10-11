@@ -387,10 +387,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
             ),
             const SizedBox(height: 16),
             if (_task!.assignedToUserName != null)
-              _buildInfoRow(l10n.assignedUser, _task!.assignedToUserName!, null),
-            if (_task!.assignedToRoleName != null)
-              _buildInfoRow(l10n.assignedRole, _task!.assignedToRoleName!, null),
-            if (_task!.assignedToUserName == null && _task!.assignedToRoleName == null)
+              _buildInfoRow(l10n.assignedUser, _task!.assignedToUserName!, null),            
+            if (_task!.assignedToUserName == null)
               Text(
                 l10n.notAssigned,
                 style: const TextStyle(
@@ -1068,7 +1066,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
       setState(() => _isLoading = true);
 
       final request = ReassignTaskRequest(
-        userId: selectedUser!.userId,
+        assignedToUserId: selectedUser!.userId,
       );
 
       final companyId = CompanyService.getCurrentCompanyIdOrThrow();
@@ -1162,6 +1160,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen>
       final notes = notesController.text.isNotEmpty ? notesController.text : null;
 
       final request = UpdateTaskProgressRequest(
+        taskId: _task!.id,
         progressPercentage: progress,
         notes: notes,
       );
