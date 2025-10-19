@@ -10,6 +10,7 @@ import 'utils/constants.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/analytics/analytics_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,9 @@ class CloudShopMgrApp extends StatelessWidget {
             locale: appState.currentLocale,
             home: AuthService.isLoggedIn ? const HomeScreen() : const LoginScreen(),
             debugShowCheckedModeBanner: false,
+            routes: {
+              '/analytics': (context) => const AnalyticsDashboardScreen(),
+            },
           );
         },
       ),

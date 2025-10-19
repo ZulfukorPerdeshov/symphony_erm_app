@@ -92,14 +92,25 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
                         _buildMenuItem(
+                          icon: Icons.bar_chart_rounded,
+                          title: l10n.analytics,
+                          subtitle: 'View metrics and trends',
+                          onTap: () => _navigateToAnalytics(context),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                          ),
+                          delay: 0,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMenuItem(
                           icon: Icons.emoji_events_outlined,
                           title: l10n.myResults,
                           subtitle: l10n.viewYourPerformance,
                           onTap: () => _navigateTo(context, '/my-results'),
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                            colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                           ),
-                          delay: 0,
+                          delay: 100,
                         ),
                         const SizedBox(height: 12),
                         _buildMenuItem(
@@ -110,7 +121,7 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
                           gradient: const LinearGradient(
                             colors: [Color(0xFFf093fb), Color(0xFFF5576c)],
                           ),
-                          delay: 100,
+                          delay: 200,
                         ),
                         const SizedBox(height: 12),
                         _buildMenuItem(
@@ -121,7 +132,7 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
                           gradient: const LinearGradient(
                             colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
                           ),
-                          delay: 200,
+                          delay: 300,
                         ),
                         const SizedBox(height: 12),
                         _buildMenuItem(
@@ -132,7 +143,7 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
                           gradient: const LinearGradient(
                             colors: [Color(0xFF43e97b), Color(0xFF38f9d7)],
                           ),
-                          delay: 300,
+                          delay: 400,
                         ),
                         const SizedBox(height: 12),
                         _buildMenuItem(
@@ -143,7 +154,7 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
                           gradient: const LinearGradient(
                             colors: [Color(0xFFfa709a), Color(0xFFfee140)],
                           ),
-                          delay: 400,
+                          delay: 500,
                         ),
                       ],
                     ),
@@ -437,6 +448,11 @@ class _AppDrawerState extends State<AppDrawer> with SingleTickerProviderStateMix
         ),
       ),
     );
+  }
+
+  void _navigateToAnalytics(BuildContext context) {
+    Navigator.pop(context); // Close drawer
+    Navigator.pushNamed(context, '/analytics');
   }
 
   void _navigateTo(BuildContext context, String route) {
