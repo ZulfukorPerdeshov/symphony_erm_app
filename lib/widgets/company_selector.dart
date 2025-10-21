@@ -42,15 +42,30 @@ class _CompanySelectorState extends State<CompanySelector> {
       }
 
       setState(() {
-        _companies = companies;
+        // Remove duplicates by company ID to prevent dropdown errors
+        final Map<String, Company> uniqueCompanies = {};
+        for (var company in companies) {
+          if (!uniqueCompanies.containsKey(company.id)) {
+            uniqueCompanies[company.id] = company;
+          }
+        }
+        _companies = uniqueCompanies.values.toList();
         _isLoading = false;
 
-        print('companies loaded: ${companies.length} companies');
-        print('companies: ${companies.map((c) => '${c.name} (${c.id})').toList()}');
+        print('companies loaded: ${_companies.length} companies (${companies.length} before deduplication)');
+        print('companies: ${_companies.map((c) => '${c.name} (${c.id})').toList()}');
+        print('current selected company: $_selectedCompany');
+
+        // Validate the selected company exists in the loaded list
+        final companyIds = _companies.map((c) => c.id).toSet();
+        if (_selectedCompany != null && !companyIds.contains(_selectedCompany)) {
+          print('Warning: Selected company $_selectedCompany not found in loaded companies');
+          _selectedCompany = null;
+        }
 
         // If no company is selected and we have companies, select the first one
-        if ((_selectedCompany == null || _selectedCompany == 'default-company-id') && companies.isNotEmpty) {
-          _selectCompany(companies.first.id);
+        if ((_selectedCompany == null || _selectedCompany == 'default-company-id') && _companies.isNotEmpty) {
+          _selectCompany(_companies.first.id);
         }
       });
     } catch (e) {
@@ -150,6 +165,22 @@ class _CompanySelectorState extends State<CompanySelector> {
       );
     }
 
+    // Validate that the selected company exists in the companies list
+    // If not, default to null or the first company
+    final companyIds = _companies.map((c) => c.id).toList();
+    final validSelectedCompany = _selectedCompany != null && companyIds.contains(_selectedCompany)
+        ? _selectedCompany
+        : (companyIds.isNotEmpty ? companyIds.first : null);
+
+    // Update the selected company if it changed
+    if (validSelectedCompany != _selectedCompany) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (validSelectedCompany != null) {
+          _selectCompany(validSelectedCompany);
+        }
+      });
+    }
+
     return Row(
       children: [
         // Icon(
@@ -161,10 +192,10 @@ class _CompanySelectorState extends State<CompanySelector> {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [              
+            children: [
               DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _selectedCompany,
+                  value: validSelectedCompany,
                   isExpanded: true,
                   icon: const Icon(Icons.keyboard_arrow_down),
                   style: theme.textTheme.bodyMedium?.copyWith(
